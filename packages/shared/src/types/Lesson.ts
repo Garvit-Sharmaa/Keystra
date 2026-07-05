@@ -171,3 +171,95 @@ export interface FilteredWordSet {
   /** Unix ms timestamp — used to validate the cache */
   builtAt:        number;
 }
+
+// ─── Chapter / Lesson Progression ────────────────────────────────────────────
+// These types power the new Lesson-as-folder, Chapter-based curriculum UI.
+// They are UI/frontend types — the backend continues to operate on LessonConfig.
+
+/** User-selectable difficulty tier for Final Boss tests */
+export type Difficulty = 'easy' | 'intermediate' | 'professional';
+
+/** Chapter type determines the UI row appearance and launch behavior */
+export type ChapterType = 'tutorial' | 'drill' | 'game' | 'test';
+
+/**
+ * Chapter — one atomic learning unit inside a Lesson folder.
+ *
+ * id format: "<lessonNumber>.<chapterIndex>" — e.g. "1.4", "2.6"
+ * Localized numbering: each Lesson's chapters start at .0
+ *
+ * Chapters of type 'test' are the Final Boss gating the next Lesson.
+ * They require a difficulty selection before launch.
+ */
+export interface Chapter {
+  /** Stable localized ID — e.g. "1.0", "1.6" */
+  id: string;
+
+  /** Human-readable label — e.g. "Isolated Keys" */
+  title: string;
+
+  type: ChapterType;
+
+  /** Rough session time for UI hint */
+  estimatedMinutes: number;
+
+  /**
+   * Server-persisted completion state.
+   * Derived from the chapter_progress DB table on page load.
+   * Optimistically updated on client after a passing session.
+   */
+  isCompleted: boolean;
+
+  /**
+   * The LessonConfig ID this chapter uses for word generation.
+   * Maps to an existing curriculum.ts entry.
+   */
+  lessonConfigId: string;
+
+  /**
+   * Base WPM required to pass (type=test only).
+   * Scaled by DifficultyModifiers before comparison.
+   */
+  basePassingWpm?: number;
+
+  /**
+   * Base accuracy % required to pass (type=test only).
+   * Overridden entirely by DifficultyModifiers.accuracyReq.
+   */
+  basePassingAccuracy?: number;
+}
+
+/**
+ * Lesson — a gated folder containing an ordered Chapter array.
+ *
+ * isLocked = true until every Chapter in the PREVIOUS Lesson has isCompleted=true.
+ * The final Chapter (type='test') is the boss fight that clears the lock.
+ */
+export interface Lesson {
+  /** e.g. "lesson-1" */
+  id: string;
+
+  /** 1-indexed display number */
+  number: number;
+
+  title: string;
+  description: string;
+
+  /**
+   * True when the previous Lesson has no incomplete chapters.
+   * Computed client-side from academyStore completion data.
+   */
+  isLocked: boolean;
+
+  chapters: Chapter[];
+}
+
+/** WPM/accuracy modifiers applied to Final Boss test thresholds */
+export const DifficultyModifiers: Record<
+  Difficulty,
+  { wpmMultiplier: number; accuracyReq: number }
+> = {
+  easy:         { wpmMultiplier: 0.8,  accuracyReq: 90 },
+  intermediate: { wpmMultiplier: 1.0,  accuracyReq: 95 },
+  professional: { wpmMultiplier: 1.5,  accuracyReq: 98 },
+};

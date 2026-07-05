@@ -1,159 +1,95 @@
 'use client';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+/**
+ * LearnPage — The Academy: Chapter-based curriculum with strict linear gating.
+ *
+ * ARCHITECTURE:
+ *   1. On mount: fetch server-persisted chapter progress from /api/lessons/progress
+ *   2. Build curriculum via buildCurriculum(completedIds) — lock logic runs here
+ *   3. Render LessonAccordion for each Lesson (accordion open = active lesson)
+ *   4. On chapter click:
+ *        - non-test: generate + initSession + navigate to /practice?lessonId=...
+ *        - test:     open DifficultySelector modal first, then generate + navigate
+ *   5. On return from TypingArena (status=finished):
+ *        - evaluate results against difficulty-scaled thresholds
+ *        - if pass: POST /api/lessons/progress, optimistically update local state
+ *        - toast pass/fail feedback
+ *
+ * PRESERVATION: Zero modifications to TypingArena, ForgePanel, or any store/hook.
+ */
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter }    from 'next/navigation';
+import { motion }       from 'framer-motion';
+import { GraduationCap, RefreshCw } from 'lucide-react';
+
 import { useUserStore, selectTokens, selectUser } from '@/store/userStore';
-import { useTypingStore } from '@/store/typingStore';
-import { lessonsApi, type LessonListItem } from '@/lib/api';
-import type { Metadata } from 'next';
+import { useTypingStore }                          from '@/store/typingStore';
+import { lessonsApi }                              from '@/lib/api';
+import { buildCurriculum }                         from '@/lib/curriculum';
+import { DifficultyModifiers }                     from '@typing-master/shared';
+import type { Chapter, Lesson, Difficulty }        from '@typing-master/shared';
 
-// ── Difficulty badge config ────────────────────────────────────────────────────
-const DIFFICULTY_META: Record<number, { label: string; color: string; bg: string }> = {
-  1: { label: 'Beginner',     color: '#34d399', bg: 'rgba(52,211,153,0.10)' },
-  2: { label: 'Easy',         color: '#60a5fa', bg: 'rgba(96,165,250,0.10)' },
-  3: { label: 'Intermediate', color: '#fbbf24', bg: 'rgba(251,191,36,0.10)' },
-  4: { label: 'Hard',         color: '#f87171', bg: 'rgba(248,113,113,0.10)' },
-  5: { label: 'Expert',       color: '#a78bfa', bg: 'rgba(167,139,250,0.10)' },
-};
+import LessonAccordion    from '@/components/academy/LessonAccordion';
+import DifficultySelector from '@/components/academy/DifficultySelector';
 
-// ── Progress line connector ────────────────────────────────────────────────────
-function ProgressConnector({ completed }: { completed: boolean }) {
-  return (
-    <div className="flex justify-center my-1">
-      <div className={`w-0.5 h-5 rounded-full transition-colors duration-500
-        ${completed ? 'bg-correct/60' : 'bg-surface-3'}`} />
-    </div>
-  );
+// ─── Toast (inline, no external lib) ─────────────────────────────────────────
+
+interface ToastState {
+  type:    'pass' | 'fail';
+  message: string;
 }
 
-// ── Single lesson card ─────────────────────────────────────────────────────────
-interface LessonCardProps {
-  lesson:      LessonListItem;
-  index:       number;
-  isActive:    boolean;
-  isCompleted: boolean;    // true when lessonIndex < completedCount (already passed)
-  isLoading:   boolean;
-  onStart:     (id: string) => void;
-}
-
-function LessonCard({ lesson, index, isActive, isCompleted, isLoading, onStart }: LessonCardProps) {
-  const diff   = DIFFICULTY_META[lesson.baseDifficulty] ?? DIFFICULTY_META[1];
-  const locked = lesson.locked;
-
-  const statusIcon = locked
-    ? '🔒'
-    : isActive
-      ? '▶'
-      : isCompleted
-        ? '✓'
-        : '▶';
-
-  const cardBg = locked
-    ? 'bg-surface-2/40 border-surface-3/50'
-    : isActive
-      ? 'bg-violet/8 border-violet/30 shadow-[0_0_20px_rgba(124,58,237,0.12)]'
-      : isCompleted
-        ? 'bg-surface-2 border-surface-3 hover:border-surface-2 hover:bg-surface-3/50'
-        : 'bg-surface-2 border-surface-3 hover:border-violet/20 hover:bg-surface-3/30';
+function Toast({ toast, onDismiss }: { toast: ToastState; onDismiss: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDismiss, 4000);
+    return () => clearTimeout(t);
+  }, [onDismiss]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, delay: index * 0.05, ease: 'easeOut' }}
-      id={`lesson-card-${lesson.stage}`}
-      className={`relative rounded-2xl border p-5 transition-all duration-200
-                  ${cardBg} ${locked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-      onClick={() => !locked && !isLoading && onStart(lesson.id)}
+      initial={{ opacity: 0, y: 24, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0,  scale: 1    }}
+      exit={{    opacity: 0, y: 16, scale: 0.98 }}
+      className={[
+        'fixed bottom-6 left-1/2 -translate-x-1/2 z-50',
+        'px-5 py-3 rounded-2xl border font-mono text-sm font-semibold',
+        'shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-sm',
+        toast.type === 'pass'
+          ? 'bg-correct/10 border-correct/30 text-correct'
+          : 'bg-incorrect/10 border-incorrect/30 text-incorrect',
+      ].join(' ')}
     >
-      <div className="flex items-start gap-4">
-        {/* Stage number circle */}
-        <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center
-                         font-mono font-bold text-sm border transition-colors
-                         ${isActive
-                           ? 'bg-violet/20 border-violet/50 text-violet-light'
-                           : locked
-                             ? 'bg-surface-3 border-surface-3 text-untyped'
-                             : 'bg-correct/10 border-correct/30 text-correct'}`}>
-          {isActive ? '▶' : locked ? '🔒' : isCompleted ? `${lesson.stage + 1}` : '🔒'}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          {/* Title row */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <h3 className={`font-mono font-semibold text-sm
-              ${locked ? 'text-untyped' : isActive ? 'text-violet-light' : isCompleted ? 'text-correct' : 'text-untyped'}`}>
-              {lesson.name}
-            </h3>
-            {/* Difficulty badge */}
-            <span
-              className="text-[10px] font-mono px-2 py-0.5 rounded-full border"
-              style={{ color: diff.color, background: diff.bg,
-                       borderColor: `${diff.color}40` }}
-            >
-              {diff.label}
-            </span>
-          </div>
-
-          {/* Description */}
-          <p className="text-xs text-untyped mt-1 leading-relaxed line-clamp-2">
-            {lesson.description}
-          </p>
-
-          {/* Target keys */}
-          {lesson.targetKeys.length > 0 && (
-            <div className="flex items-center gap-2 mt-2.5 flex-wrap">
-              <span className="text-[10px] font-mono text-muted">new keys:</span>
-              {lesson.targetKeys.map((k) => (
-                <kbd key={k}
-                  className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-3
-                             border border-surface-2 text-violet-light tracking-widest">
-                  {k === ' ' ? '⎵' : k}
-                </kbd>
-              ))}
-            </div>
-          )}
-
-          {/* Meta row */}
-          <div className="flex items-center gap-4 mt-2.5">
-            <span className="text-[10px] font-mono text-untyped flex items-center gap-1">
-              <span>⌨</span>
-              <span>{lesson.allowedCount} keys total</span>
-            </span>
-            <span className="text-[10px] font-mono text-untyped flex items-center gap-1">
-              <span>✦</span>
-              <span>{lesson.wordCount} words/session</span>
-            </span>
-          </div>
-        </div>
-
-        {/* CTA */}
-        {!locked && (
-          <div className="shrink-0">
-            {isLoading && isActive ? (
-              <div className="w-8 h-8 rounded-full border-2 border-violet/40
-                              border-t-violet animate-spin" />
-            ) : (
-              <button
-                id={`lesson-start-${lesson.stage}`}
-                disabled={isLoading}
-                className={`text-[11px] font-mono px-3 py-1.5 rounded-lg border
-                            transition-all duration-150 active:scale-95
-                            ${isActive
-                              ? 'bg-violet border-violet text-white hover:bg-violet/85'
-                              : 'bg-surface-3 border-surface-2 text-muted hover:border-violet/30'}`}
-              >
-                {isActive ? 'start →' : 'practice'}
-              </button>
-            )}
-          </div>
-        )}
-      </div>
+      {toast.type === 'pass' ? '✓ ' : '✗ '}{toast.message}
     </motion.div>
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
+// ─── Overall progress bar ─────────────────────────────────────────────────────
+
+function GlobalProgressBar({
+  completed, total,
+}: { completed: number; total: number }) {
+  const pct = total === 0 ? 0 : (completed / total) * 100;
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-xs font-mono text-untyped shrink-0">overall progress</span>
+      <div className="flex-1 h-1.5 bg-surface-3 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full bg-gradient-to-r from-violet to-correct rounded-full"
+          initial={{ width: 0 }}
+          animate={{ width: `${Math.max(2, pct)}%` }}
+          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
+        />
+      </div>
+      <span className="text-xs font-mono text-muted shrink-0">
+        {completed}/{total}
+      </span>
+    </div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function LearnPage() {
   const router      = useRouter();
   const tokens      = useUserStore(selectTokens);
@@ -161,155 +97,280 @@ export default function LearnPage() {
   const isHydrated  = useUserStore((s) => s.isHydrated);
   const initSession = useTypingStore((s) => s.initSession);
 
-  const [lessons,       setLessons]       = useState<LessonListItem[]>([]);
+  // ── Server progress state ────────────────────────────────────────────────
+  const [completedIds,  setCompletedIds]  = useState<Set<string>>(new Set());
   const [isLoading,     setIsLoading]     = useState(true);
-  const [startingId,    setStartingId]    = useState<string | null>(null);
   const [error,         setError]         = useState('');
+
+  // ── Chapter launch state ─────────────────────────────────────────────────
+  const [startingId,    setStartingId]    = useState<string | null>(null);
   const [sessionError,  setSessionError]  = useState('');
-  // Bug 4 fix: increment on every mount so lessons are always re-fetched
-  // when navigating back to /learn (e.g. after completing a lesson).
-  const [fetchKey, setFetchKey] = useState(0);
-  useEffect(() => { setFetchKey((k) => k + 1); }, []); // mount-only
 
-  // ── Fetch curriculum ──────────────────────────────────────────────────────
-  useEffect(() => {
-    // ISOLATION GUARD: do not fetch until the Zustand persist middleware has
-    // finished hydrating from localStorage. Without this check, the effect
-    // can fire during the brief window where the store still holds the
-    // previous user's token, causing their lesson unlock state to flash
-    // on screen for the new user.
+  // ── Difficulty modal state ───────────────────────────────────────────────
+  const [pendingChapter, setPendingChapter] = useState<Chapter | null>(null);
+  const [pendingLesson,  setPendingLesson]  = useState<Lesson  | null>(null);
+  const [isLaunching,    setIsLaunching]    = useState(false);
+
+  // ── Toast state ──────────────────────────────────────────────────────────
+  const [toast, setToast] = useState<ToastState | null>(null);
+
+  // ── Difficulty used in the last launched test (for pass/fail eval) ───────
+  const pendingDifficultyRef = useRef<Difficulty | null>(null);
+  const pendingChapterIdRef  = useRef<string | null>(null);
+
+  // ── Build curriculum from progress ──────────────────────────────────────
+  const curriculum = buildCurriculum(completedIds);
+
+  // ── Fetch server progress ────────────────────────────────────────────────
+  const fetchProgress = useCallback(async () => {
     if (!isHydrated) return;
-
     setIsLoading(true);
     setError('');
-    lessonsApi.list(tokens?.accessToken)
-      .then((data) => setLessons(data.lessons))
-      .catch((err) => setError(err.message ?? 'Failed to load lessons'))
-      .finally(() => setIsLoading(false));
-  }, [tokens?.accessToken, fetchKey, isHydrated]); // re-fetch on every mount + token change
 
-  // ── Clear stale lesson list when a different user logs in on the same tab ──
-  // Without this, User A's locked/unlocked state briefly renders under User B's
-  // name during the gap between login and the fresh fetch resolving.
-  const prevUserIdRef = React.useRef<string | null>(null);
+    try {
+      if (tokens?.accessToken) {
+        const { chapters } = await lessonsApi.getProgress(tokens.accessToken);
+        setCompletedIds(new Set(chapters.map((c) => c.chapterId)));
+      } else {
+        // Guest: no progress
+        setCompletedIds(new Set());
+      }
+    } catch (err: any) {
+      setError(err.message ?? 'Failed to load curriculum progress');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [tokens?.accessToken, isHydrated]);
+
+  useEffect(() => { fetchProgress(); }, [fetchProgress]);
+
+  // ── Clear progress when user changes (multi-account on same tab) ─────────
+  const prevUserIdRef = useRef<string | null>(null);
   useEffect(() => {
     const currentId = user?.id ?? null;
     if (prevUserIdRef.current !== null && prevUserIdRef.current !== currentId) {
-      setLessons([]);  // clear stale previous-user lesson list immediately
+      setCompletedIds(new Set());
     }
     prevUserIdRef.current = currentId;
   }, [user?.id]);
 
-  // ── Derive active lesson (last non-locked = user's current frontier) ────────
-  // IMPORTANT: completed lessons stay unlocked for practice re-runs.
-  // find()     → always Lesson 1 (first unlocked) — WRONG ✗
-  // findLast() → the furthest unlocked lesson = the true "next up" — CORRECT ✓
-  const activeLessonId = [...lessons].reverse().find((l) => !l.locked)?.id
-                         ?? lessons[0]?.id;
+  // ── Listen for session finish to evaluate pass/fail ──────────────────────
+  const prevStatus = useRef(useTypingStore.getState().status);
+  useEffect(() => {
+    const unsub = useTypingStore.subscribe(
+      (s) => s.status,
+      (status) => {
+        if (prevStatus.current === 'running' && status === 'finished') {
+          void evaluateResult();
+        }
+        prevStatus.current = status;
+      },
+    );
+    return unsub;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tokens]);
 
-  // ── Derive active + completed counts ──────────────────────────────────────
-  // All lessons *before* the active frontier are completed.
-  // If all lessons are unlocked (user finished the curriculum), activeIndex
-  // will be the last lesson (index 9) and completedCount = 9 (or lessons.length).
-  const activeIndex    = lessons.findIndex((l) => l.id === activeLessonId);
-  const completedCount = activeIndex < 0 ? 0 : activeIndex; // lessons before the active
-  const handleStart = useCallback(async (lessonId: string) => {
+  async function evaluateResult() {
+    const chapterId  = pendingChapterIdRef.current;
+    const difficulty = pendingDifficultyRef.current;
+    if (!chapterId || !difficulty) return;
+
+    const results = useTypingStore.getState().results;
+    if (!results) return;
+
+    // Find chapter in curriculum
+    const chapter = curriculum
+      .flatMap((l) => l.chapters)
+      .find((ch) => ch.id === chapterId);
+
+    if (!chapter || chapter.type !== 'test') {
+      // Non-test chapters always "pass" — mark complete immediately
+      if (chapter && tokens?.accessToken) {
+        await safeMarkComplete(chapterId, 'easy', results.wpm, results.accuracy);
+      }
+      return;
+    }
+
+    // Test: check against difficulty thresholds
+    const mod         = DifficultyModifiers[difficulty];
+    const reqWpm      = Math.round((chapter.basePassingWpm ?? 0) * mod.wpmMultiplier);
+    const reqAccuracy = mod.accuracyReq;
+
+    const passed = results.wpm >= reqWpm && results.accuracy >= reqAccuracy;
+
+    if (passed) {
+      setToast({
+        type:    'pass',
+        message: `Chapter ${chapterId} passed! ${results.wpm} WPM · ${results.accuracy}% acc ✓`,
+      });
+      if (tokens?.accessToken) {
+        await safeMarkComplete(chapterId, difficulty, results.wpm, results.accuracy);
+      }
+    } else {
+      setToast({
+        type:    'fail',
+        message: `${results.wpm} WPM / ${results.accuracy}% — need ${reqWpm} WPM / ${reqAccuracy}%. Try again!`,
+      });
+    }
+
+    // Clear pending refs
+    pendingChapterIdRef.current  = null;
+    pendingDifficultyRef.current = null;
+  }
+
+  async function safeMarkComplete(
+    chapterId:  string,
+    difficulty: Difficulty,
+    wpm:        number,
+    accuracy:   number,
+  ) {
+    try {
+      if (tokens?.accessToken) {
+        await lessonsApi.markProgress(
+          { chapterId, difficulty, wpmAchieved: wpm, accuracyAchieved: accuracy },
+          tokens.accessToken,
+        );
+      }
+      // Optimistic local update
+      setCompletedIds((prev) => new Set([...prev, chapterId]));
+    } catch (err: any) {
+      console.error('[Academy] markProgress failed:', err.message);
+    }
+  }
+
+  // ── Chapter start handler ────────────────────────────────────────────────
+  const handleChapterStart = useCallback((chapter: Chapter, lesson: Lesson) => {
+    if (chapter.type === 'test') {
+      // Open difficulty selector modal
+      setPendingChapter(chapter);
+      setPendingLesson(lesson);
+    } else {
+      // Direct launch
+      void launchChapter(chapter, lesson, 'easy');
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function launchChapter(
+    chapter:    Chapter,
+    _lesson:    Lesson,
+    difficulty: Difficulty,
+  ) {
     if (!tokens?.accessToken) {
       router.push('/login');
       return;
     }
 
-    setStartingId(lessonId);
+    setStartingId(chapter.id);
+    setIsLaunching(true);
     setSessionError('');
 
-    try {
-      const payload = await lessonsApi.generate(lessonId, tokens.accessToken);
+    // Store refs for post-session evaluation
+    pendingChapterIdRef.current  = chapter.id;
+    pendingDifficultyRef.current = difficulty;
 
-      // Wire into typingStore — the TypingArena (on /practice) will pick this up
+    try {
+      const payload = await lessonsApi.generate(chapter.lessonConfigId, tokens.accessToken);
+
       initSession(
         {
           mode:        'words',
-          duration:    0,           // unused in words mode
+          duration:    0,
           wordCount:   payload.wordCount,
           language:    'english',
           lessonId:    payload.lessonId,
-          allowedKeys: payload.config.allowedKeys, // → LiveKeyboard home-zone highlight
+          allowedKeys: payload.config.allowedKeys,
         },
         payload.words,
       );
 
-      // Navigate to the arena — the session is already initialized.
-      // The ?lessonId= param signals the practice page to enter lesson mode
-      // (hides toggles, shows lesson breadcrumb, enables lesson-aware restart).
       router.push(`/practice?lessonId=${encodeURIComponent(payload.lessonId)}`);
     } catch (err: any) {
-      setSessionError(err.message ?? 'Failed to generate lesson. Please try again.');
+      setSessionError(err.message ?? 'Failed to start chapter. Please try again.');
+      pendingChapterIdRef.current  = null;
+      pendingDifficultyRef.current = null;
     } finally {
       setStartingId(null);
+      setIsLaunching(false);
     }
-  }, [tokens, initSession, router]);
+  }
 
+  // ── Difficulty modal confirm ─────────────────────────────────────────────
+  const handleDifficultyConfirm = useCallback(async (difficulty: Difficulty) => {
+    if (!pendingChapter || !pendingLesson) return;
+    const chapter = pendingChapter;
+    const lesson  = pendingLesson;
+    setPendingChapter(null);
+    setPendingLesson(null);
+    await launchChapter(chapter, lesson, difficulty);
+  }, [pendingChapter, pendingLesson]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const handleDifficultyCancel = useCallback(() => {
+    setPendingChapter(null);
+    setPendingLesson(null);
+  }, []);
+
+  // ── Derived stats ────────────────────────────────────────────────────────
+  const allChapterCount   = curriculum.flatMap((l) => l.chapters).length;
+  const completedChapterCount = completedIds.size;
+
+  // Active lesson = first non-complete, non-locked
+  const activeLesson = curriculum.find(
+    (l) => !l.isLocked && !l.chapters.every((ch) => ch.isCompleted),
+  );
+
+  // ── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-10 animate-fade-in">
-      {/* Page header */}
+
+      {/* ── Page header ─────────────────────────────────────────────────── */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-correct font-mono">
-          Academy
-          <span className="text-violet-light"> /</span>
-          <span className="text-untyped text-lg font-normal"> Curriculum</span>
-        </h1>
-        <p className="text-muted text-sm mt-1">
-          A structured 10-step path from home row to full keyboard mastery.
-          Each lesson builds cumulatively on the last.
+        <div className="flex items-center gap-3 mb-1">
+          <GraduationCap size={20} className="text-violet-light" strokeWidth={2} />
+          <h1 className="text-2xl font-semibold text-correct font-mono">
+            Academy
+            <span className="text-violet-light"> /</span>
+            <span className="text-untyped text-lg font-normal"> Curriculum</span>
+          </h1>
+        </div>
+        <p className="text-muted text-sm mt-1 font-mono">
+          4 lessons · {allChapterCount} chapters · complete each lesson's Boss Test to advance.
         </p>
 
-        {/* User progress bar */}
-        {user && !isLoading && lessons.length > 0 && (
-          <div className="mt-4 flex items-center gap-3">
-            <span className="text-xs font-mono text-untyped">progress</span>
-            <div className="flex-1 h-1.5 bg-surface-3 rounded-full overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-violet to-correct rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.max(2, (activeIndex / lessons.length) * 100)}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
-              />
-            </div>
-            <span className="text-xs font-mono text-muted">
-              {completedCount}/{lessons.length}
-            </span>
+        {/* Global progress bar */}
+        {!isLoading && (
+          <div className="mt-4">
+            <GlobalProgressBar
+              completed={completedChapterCount}
+              total={allChapterCount}
+            />
           </div>
         )}
       </div>
 
-      {/* Error states */}
+      {/* ── Error ───────────────────────────────────────────────────────── */}
       {error && (
-        <div className="mb-6 bg-incorrect/10 border border-incorrect/30 text-incorrect
-                        text-sm px-4 py-3 rounded-xl font-mono" role="alert">
-          {error}
+        <div className="mb-6 flex items-center gap-3 bg-incorrect/10 border border-incorrect/30
+                        text-incorrect text-sm px-4 py-3 rounded-xl font-mono" role="alert">
+          <span className="flex-1">{error}</span>
+          <button onClick={fetchProgress} className="flex items-center gap-1 text-xs underline opacity-70">
+            <RefreshCw size={11} /> retry
+          </button>
         </div>
       )}
-      <AnimatePresence>
-        {sessionError && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mb-6 bg-incorrect/10 border border-incorrect/30 text-incorrect
-                       text-sm px-4 py-3 rounded-xl font-mono"
-          >
-            ⚠ {sessionError}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Guest sign-in nudge */}
+      {sessionError && (
+        <div className="mb-6 bg-incorrect/10 border border-incorrect/30 text-incorrect
+                        text-sm px-4 py-3 rounded-xl font-mono" role="alert">
+          ⚠ {sessionError}
+        </div>
+      )}
+
+      {/* ── Guest nudge ─────────────────────────────────────────────────── */}
       {!user && !isLoading && (
         <div className="mb-6 glass border border-violet/20 rounded-2xl px-5 py-3
                         flex items-center justify-between gap-4">
           <p className="text-sm text-muted font-mono">
-            Sign in for adaptive lessons that target your weak keys.
+            Sign in to save chapter progress across devices.
           </p>
           <button
             onClick={() => router.push('/login')}
@@ -321,53 +382,55 @@ export default function LearnPage() {
         </div>
       )}
 
-      {/* Skeleton */}
+      {/* ── Skeleton ────────────────────────────────────────────────────── */}
       {isLoading && (
-        <div className="flex flex-col gap-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-28 rounded-2xl bg-surface-2 border border-surface-3
-                                    animate-pulse" />
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-24 rounded-2xl bg-surface-2 border border-surface-3 animate-pulse" />
           ))}
         </div>
       )}
 
-      {/* Lesson path */}
+      {/* ── Lesson accordions ────────────────────────────────────────────── */}
       {!isLoading && !error && (
-        <div className="flex flex-col">
-          {lessons.map((lesson, i) => {
-            const isLessonActive  = lesson.id === activeLessonId;
-            const isLessonDone    = i < completedCount;          // everything before active
-            const isThisLoading   = startingId === lesson.id;
-
-            return (
-              <React.Fragment key={lesson.id}>
-                <LessonCard
-                  lesson={lesson}
-                  index={i}
-                  isActive={isLessonActive}
-                  isCompleted={isLessonDone}
-                  isLoading={isThisLoading}
-                  onStart={handleStart}
-                />
-                {i < lessons.length - 1 && (
-                  <ProgressConnector completed={i < completedCount} />
-                )}
-              </React.Fragment>
-            );
-          })}
+        <div className="flex flex-col gap-4">
+          {curriculum.map((lesson) => (
+            <LessonAccordion
+              key={lesson.id}
+              lesson={lesson}
+              defaultOpen={activeLesson?.id === lesson.id}
+              startingId={startingId}
+              onStart={handleChapterStart}
+            />
+          ))}
         </div>
       )}
 
-      {/* Footer note */}
+      {/* ── Footer note ──────────────────────────────────────────────────── */}
       {!isLoading && !error && (
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.9 }}
           className="text-center text-[11px] font-mono text-untyped mt-8"
         >
-          lessons adapt to your weak keys after each session • powered by the generation engine
+          complete every chapter in a lesson · defeat the boss · unlock the next level
         </motion.p>
+      )}
+
+      {/* ── Difficulty selector modal ─────────────────────────────────────── */}
+      {pendingChapter && (
+        <DifficultySelector
+          chapter={pendingChapter}
+          onConfirm={handleDifficultyConfirm}
+          onCancel={handleDifficultyCancel}
+          isLaunching={isLaunching}
+        />
+      )}
+
+      {/* ── Pass/fail toast ──────────────────────────────────────────────── */}
+      {toast && (
+        <Toast toast={toast} onDismiss={() => setToast(null)} />
       )}
     </div>
   );

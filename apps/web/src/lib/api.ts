@@ -141,6 +141,14 @@ export interface LessonPayload {
   };
 }
 
+export interface ChapterProgressItem {
+  chapterId:        string;
+  difficulty:       'easy' | 'intermediate' | 'professional';
+  wpmAchieved:      number;
+  accuracyAchieved: number;
+  completedAt:      string;
+}
+
 export const lessonsApi = {
   list: (token?: string) =>
     apiFetch<{ lessons: LessonListItem[]; total: number }>(
@@ -150,5 +158,26 @@ export const lessonsApi = {
   generate: (lessonId: string, token: string) =>
     apiFetch<LessonPayload>(
       `/api/lessons/${lessonId}/generate`, { token },
+    ),
+
+  /** Fetch all completed chapter IDs for the current user */
+  getProgress: (token: string) =>
+    apiFetch<{ chapters: ChapterProgressItem[]; total: number }>(
+      '/api/lessons/progress', { token },
+    ),
+
+  /** Mark a chapter complete (idempotent — safe to call multiple times) */
+  markProgress: (
+    payload: {
+      chapterId:        string;
+      difficulty:       'easy' | 'intermediate' | 'professional';
+      wpmAchieved:      number;
+      accuracyAchieved: number;
+    },
+    token: string,
+  ) =>
+    apiFetch<void>(
+      '/api/lessons/progress',
+      { method: 'POST', body: JSON.stringify(payload), token },
     ),
 };

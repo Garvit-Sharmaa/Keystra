@@ -22,47 +22,52 @@ import { logger } from '../utils/logger';
  * Called directly by the QStash God Handler. Safe to retry.
  */
 export async function processStreak(userId: string): Promise<void> {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const today     = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
 
-  const { rows } = await pool.query(
-    'SELECT current_streak, longest_streak, last_active_date FROM user_streaks WHERE user_id=$1',
-    [userId],
-  );
+  // ── Atomic single-statement upsert ────────────────────────────────────────
+  // All streak logic lives in SQL CASE expressions — no application-layer
+  // read-modify-write. The DB row lock during UPDATE prevents concurrent
+  // deliveries from racing. This is safe under any QStash retry scenario.
+  //
+  // Cases handled atomically:
+  //   • Row doesn't exist      → INSERT with streak=1
+  //   • last_active_date=today → DO NOTHING (idempotent same-day retry)
+  //   • last_active_date=yest  → current_streak + 1 (extend)
+  //   • Otherwise (gap)        → reset to 1
+  const { rows } = await pool.query<{ new_streak: number }>(`
+    INSERT INTO user_streaks (user_id, current_streak, longest_streak, last_active_date)
+    VALUES ($1, 1, 1, $2::date)
+    ON CONFLICT (user_id) DO UPDATE SET
+      current_streak   = CASE
+        WHEN user_streaks.last_active_date = $2::date THEN user_streaks.current_streak
+        WHEN user_streaks.last_active_date = $3::date THEN user_streaks.current_streak + 1
+        ELSE 1
+      END,
+      longest_streak   = GREATEST(
+        user_streaks.longest_streak,
+        CASE
+          WHEN user_streaks.last_active_date = $2::date THEN user_streaks.longest_streak
+          WHEN user_streaks.last_active_date = $3::date THEN user_streaks.current_streak + 1
+          ELSE 1
+        END
+      ),
+      last_active_date = CASE
+        WHEN user_streaks.last_active_date = $2::date THEN user_streaks.last_active_date
+        ELSE $2::date
+      END
+    RETURNING current_streak AS new_streak
+  `, [userId, today, yesterday]);
 
-  let current  = 0;
-  let longest  = 0;
-  let lastDate: string | null = null;
+  const newStreak = rows[0]?.new_streak ?? 1;
 
-  if (rows.length) {
-    current  = rows[0].current_streak;
-    longest  = rows[0].longest_streak;
-    lastDate = rows[0].last_active_date?.toISOString().slice(0, 10) ?? null;
-  }
-
-  // Already updated today — idempotent early exit
-  if (lastDate === today) return;
-
-  const yesterday  = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
-  const newStreak  = lastDate === yesterday ? current + 1 : 1;
-  const newLongest = Math.max(longest, newStreak);
-
+  // Sync denormalized streak_days to user_statistics
   await pool.query(
-    `INSERT INTO user_streaks (user_id, current_streak, longest_streak, last_active_date)
-     VALUES ($1, $2, $3, $4)
-     ON CONFLICT (user_id) DO UPDATE SET
-       current_streak   = $2,
-       longest_streak   = $3,
-       last_active_date = $4`,
-    [userId, newStreak, newLongest, today],
-  );
-
-  // Sync streak to user_statistics
-  await pool.query(
-    'UPDATE user_statistics SET streak_days=$1 WHERE user_id=$2',
+    'UPDATE user_statistics SET streak_days = $1 WHERE user_id = $2',
     [newStreak, userId],
   );
 
-  logger.info({ userId, streak: newStreak }, 'Streak updated');
+  logger.info({ userId, streak: newStreak }, 'Streak updated (atomic)');
 }
 
 

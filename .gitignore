@@ -1,14 +1,62 @@
+# ── Dependencies ──────────────────────────────────────────────────────────────
 node_modules/
-.turbo/
-.next/
+
+# ── Build outputs ─────────────────────────────────────────────────────────────
 dist/
 build/
-*.log
+.next/
+out/
+
+# ── Turborepo cache ───────────────────────────────────────────────────────────
+.turbo/
+
+# ── TypeScript ────────────────────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ── Environment files ─────────────────────────────────────────────────────────
+# Root
 .env
 .env.local
 .env.production
-.env.example
-implementation_plan.md
-.DS_Store
-*.tsbuildinfo
+.env.staging
+
+# Per-app (monorepo)
+apps/api/.env
+apps/api/.env.local
+apps/api/.env.production
+apps/web/.env
+apps/web/.env.local
+apps/web/.env.production
+
+# .env.example is intentionally committed — it's the onboarding template.
+# Do NOT add .env.example here.
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# ── Test & coverage ───────────────────────────────────────────────────────────
 coverage/
+.nyc_output/
+
+# ── tsx runtime cache (Windows workaround) ────────────────────────────────────
+# Created by `npm run migrate` to work around the EPERM/short-path bug on
+# Windows machines with spaces in the username (e.g. "GARVIT BHARDWAJ").
+apps/api/tmp/
+
+# ── OS artifacts ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor / IDE ──────────────────────────────────────────────────────────────
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+implementation_plan.md

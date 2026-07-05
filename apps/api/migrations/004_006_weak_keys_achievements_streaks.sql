@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS user_streaks (
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS trg_user_streaks_updated_at ON user_streaks;
 CREATE TRIGGER trg_user_streaks_updated_at
   BEFORE UPDATE ON user_streaks
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();

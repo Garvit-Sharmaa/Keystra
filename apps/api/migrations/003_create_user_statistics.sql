@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS user_statistics (
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+DROP TRIGGER IF EXISTS trg_user_stats_updated_at ON user_statistics;
 CREATE TRIGGER trg_user_stats_updated_at
   BEFORE UPDATE ON user_statistics
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
