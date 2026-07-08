@@ -10,7 +10,7 @@
     "resolveJsonModule":true,
     "declaration":      true,
     "paths": {
-      "@typing-master/shared": ["../../packages/shared/src/index.ts"]
+      "@keystra/shared": ["../../packages/shared/src/index.ts"]
     }
   },
   "include": ["src/**/*", "../../packages/shared/src/**/*"],

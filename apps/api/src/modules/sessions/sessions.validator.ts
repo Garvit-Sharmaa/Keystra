@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SessionSubmitSchema } from '@typing-master/shared';
+import { SessionSubmitSchema } from '@keystra/shared';
 
 /**
  * sessions.validator.ts

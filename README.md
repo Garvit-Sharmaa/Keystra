@@ -1,4 +1,4 @@
-# ⌨️ TypeForge
+# ⌨️ Keystra
 
 > **A high-performance, full-stack typing intelligence platform.**  
 > Real-time keystroke analytics, progressive skill-building modules, and a serverless event-driven achievement engine — engineered to give zero input lag at 200 WPM.
@@ -55,7 +55,7 @@ Flagged sessions are stored but excluded from stats and progression calculations
 
 ## 🏗️ Architecture
 
-TypeForge is a **Turborepo monorepo** with two deployable apps and a shared types package.
+Keystra is a **Turborepo monorepo** with two deployable apps and a shared types package.
 
 ```
 typeforge/
@@ -156,8 +156,8 @@ This guarantees **zero React re-renders** in the hot keystroke path, achieving c
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/Garvit-Sharmaa/TypeForge.git
-cd TypeForge
+git clone https://github.com/Garvit-Sharmaa/Keystra.git
+cd Keystra
 
 # Install all workspace dependencies (Turborepo)
 npm install
@@ -269,7 +269,7 @@ cd apps/web && npm run dev   # → http://localhost:3000
 
 | Variable | Required | Description |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | ✅ | Base URL of the Express API (e.g. `https://api.typeforge.app`) |
+| `NEXT_PUBLIC_API_URL` | ✅ | Base URL of the Express API (e.g. `https://api.keystra.app`) |
 | `NEXT_PUBLIC_APP_URL` | ❌ | Used to construct OpenGraph canonical URLs |
 
 > [!IMPORTANT]
@@ -288,7 +288,7 @@ cd apps/web && npm run dev   # → http://localhost:3000
 | **Backend** | Node.js + Express | REST API, JWT auth, Zod validation |
 | **Database** | PostgreSQL | Parameterized queries via `pg` (no ORM) |
 | **Async Jobs** | Upstash QStash | Push-based, HMAC-signed, serverless |
-| **Monorepo** | Turborepo | Shared `@typing-master/shared` package |
+| **Monorepo** | Turborepo | Shared `@keystra/shared` package |
 | **Deployment** | Vercel (web) + Render (api) | |
 
 ---

@@ -12,7 +12,7 @@
  *   Used by the SVG keyboard to highlight focus fingers in the UI.
  */
 
-import type { LessonConfig } from '@typing-master/shared';
+import type { LessonConfig } from '@keystra/shared';
 
 // ── Helper: build cumulative allowedKeys without mutation ─────────────────────
 function cumulative(...sets: string[][]): string[] {

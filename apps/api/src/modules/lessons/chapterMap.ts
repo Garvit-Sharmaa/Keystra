@@ -105,7 +105,7 @@ export const CHAPTER_MAP = new Map<string, ApiChapterMeta>([
   ['9.4', { type: 'test',    basePassingWpm: 80 }],
 ]);
 
-/** Difficulty modifiers — mirrors DifficultyModifiers in @typing-master/shared */
+/** Difficulty modifiers — mirrors DifficultyModifiers in @keystra/shared */
 export const DIFFICULTY_MODIFIERS: Record<
   ApiDifficulty,
   { wpmMultiplier: number; accuracyReq: number }

@@ -1,7 +1,7 @@
 'use client';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { DashboardData, WeakKeyAnalysis } from '@typing-master/shared';
+import type { DashboardData, WeakKeyAnalysis } from '@keystra/shared';
 
 /** ISO date string: 'YYYY-MM-DD' */
 function todayStr(): string {
@@ -54,7 +54,7 @@ export const useAnalyticsStore = create<AnalyticsState>()(
       },
     }),
     {
-      name:    'tm-analytics-today',
+      name:    'keystra-analytics-today',
       storage: createJSONStorage(() => localStorage),
       // Only persist today's forge stats — not the full dashboard cache
       partialize: (s) => ({

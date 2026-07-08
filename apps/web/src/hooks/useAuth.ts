@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/store/userStore';
 import { useAnalyticsStore } from '@/store/analyticsStore';
 import { authApi, ApiError } from '@/lib/api';
-import type { AuthTokens } from '@typing-master/shared';
+import type { AuthTokens } from '@keystra/shared';
 
 export function useAuth() {
   const router = useRouter();

@@ -15,8 +15,8 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 import { useTypingStore } from '@/store/typingStore';
-import type { KeystrokeEvent } from '@typing-master/shared';
-import { ANTI_CHEAT } from '@typing-master/shared';
+import type { KeystrokeEvent } from '@keystra/shared';
+import { ANTI_CHEAT } from '@keystra/shared';
 import { dispatchKeyPressEvent, dispatchTargetChangeEvent } from '@/hooks/useKeyboardBridge';
 
 // ─── Engine transient state (lives in a ref, never triggers re-renders) ───────

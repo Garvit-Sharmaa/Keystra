@@ -5,8 +5,8 @@ import { AuthProvider }  from '@/components/AuthProvider';
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | TypeForge',
-    default: 'TypeForge — Adaptive Keyboard Intelligence',
+    template: '%s | Keystra',
+    default: 'Keystra — Adaptive Keyboard Intelligence',
   },
   description:
     'Master your typing speed with AI-powered analytics, personalized drills, and real-time weak-key detection. Track WPM, accuracy, and beat your personal best.',
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   ),
   openGraph: {
     type: 'website',
-    siteName: 'TypeForge',
+    siteName: 'Keystra',
   },
 };
 

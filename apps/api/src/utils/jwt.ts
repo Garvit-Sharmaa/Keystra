@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
-import type { JwtPayload, UserRank } from '@typing-master/shared';
+import type { JwtPayload, UserRank } from '@keystra/shared';
 
 // ── Token generation ──────────────────────────────────────────────────────────
 export function signAccessToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {

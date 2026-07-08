@@ -2,7 +2,7 @@ import { PoolClient } from 'pg';
 import { pool, withTransaction } from '../../config/database';
 import { dispatchSessionJobs }    from '../../config/bullmq';
 import { validateSession }        from '../../utils/antiCheat';
-import { calculateSessionXp, getRankForXp } from '@typing-master/shared';
+import { calculateSessionXp, getRankForXp } from '@keystra/shared';
 import { createError }            from '../../middleware/errorHandler';
 import { logger }                 from '../../utils/logger';
 import type { SubmitSessionPayload } from './sessions.validator';

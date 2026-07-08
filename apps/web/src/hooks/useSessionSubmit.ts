@@ -14,7 +14,7 @@ import { useTypingStore, selectStatus, selectResults, selectConfig, selectWords 
 import { useUserStore, selectTokens } from '@/store/userStore';
 import { useAnalyticsStore } from '@/store/analyticsStore';
 import { sessionsApi, ApiError } from '@/lib/api';
-import type { SessionSubmitPayload } from '@typing-master/shared';
+import type { SessionSubmitPayload } from '@keystra/shared';
 
 export interface SubmitState {
   status: 'idle' | 'submitting' | 'success' | 'error' | 'flagged';

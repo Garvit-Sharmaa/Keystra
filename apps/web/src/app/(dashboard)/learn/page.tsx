@@ -26,8 +26,8 @@ import { useUserStore, selectTokens, selectUser } from '@/store/userStore';
 import { useTypingStore }                          from '@/store/typingStore';
 import { lessonsApi }                              from '@/lib/api';
 import { buildCurriculum }                         from '@/lib/curriculum';
-import { DifficultyModifiers }                     from '@typing-master/shared';
-import type { Chapter, Lesson, Difficulty }        from '@typing-master/shared';
+import { DifficultyModifiers }                     from '@keystra/shared';
+import type { Chapter, Lesson, Difficulty }        from '@keystra/shared';
 
 import LessonAccordion    from '@/components/academy/LessonAccordion';
 import DifficultySelector from '@/components/academy/DifficultySelector';

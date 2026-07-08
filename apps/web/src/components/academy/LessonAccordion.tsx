@@ -14,7 +14,7 @@
 import React, { memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
-import type { Lesson, Chapter } from '@typing-master/shared';
+import type { Lesson, Chapter } from '@keystra/shared';
 import ChapterRow from './ChapterRow';
 
 // ─── Progress ring (SVG) ──────────────────────────────────────────────────────

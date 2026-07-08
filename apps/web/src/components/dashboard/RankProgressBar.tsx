@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import type { UserRank } from '@typing-master/shared';
+import type { UserRank } from '@keystra/shared';
 
 // Per-rank gradient + glow pairs — simulate metallic sheen
 const GRADIENTS: Record<UserRank, { fill: string; glow: string }> = {

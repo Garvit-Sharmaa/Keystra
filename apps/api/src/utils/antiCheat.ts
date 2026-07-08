@@ -7,8 +7,8 @@
  * Future: anomaly scores can be fed into an ML pipeline for soft flagging.
  */
 
-import { ANTI_CHEAT } from '@typing-master/shared';
-import type { SessionSubmitPayload } from '@typing-master/shared';
+import { ANTI_CHEAT } from '@keystra/shared';
+import type { SessionSubmitPayload } from '@keystra/shared';
 
 // ── Result type ───────────────────────────────────────────────────────────────
 export interface AntiCheatResult {

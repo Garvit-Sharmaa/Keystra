@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@typing-master/shared": "*",
+    "@keystra/shared": "*",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "js-cookie": "^3.0.5",

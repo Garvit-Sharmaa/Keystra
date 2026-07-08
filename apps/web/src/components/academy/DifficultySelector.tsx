@@ -19,8 +19,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sword, X, Shield, Zap, Flame, ChevronRight } from 'lucide-react';
-import type { Difficulty, Chapter } from '@typing-master/shared';
-import { DifficultyModifiers } from '@typing-master/shared';
+import type { Difficulty, Chapter } from '@keystra/shared';
+import { DifficultyModifiers } from '@keystra/shared';
 
 // ─── Difficulty card meta ─────────────────────────────────────────────────────
 

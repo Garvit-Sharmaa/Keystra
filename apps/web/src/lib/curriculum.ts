@@ -33,7 +33,7 @@
  *   curriculum shape.
  */
 
-import type { Chapter, Lesson } from '@typing-master/shared';
+import type { Chapter, Lesson } from '@keystra/shared';
 
 // ─── Static curriculum skeleton (isCompleted always false here) ───────────────
 // The AcademyPage hydrates isCompleted from the server before rendering.
@@ -387,7 +387,7 @@ const CHAPTER_TEMPLATES: { lesson: Omit<Lesson, 'isLocked' | 'chapters'>; chapte
       { id: '9.1', title: 'Complex Vocabulary Run', type: 'drill', estimatedMinutes: 12, lessonConfigId: 'lesson-15-grandmaster' },
       { id: '9.2', title: 'Sustained Endurance (10 minutes)', type: 'drill', estimatedMinutes: 15, lessonConfigId: 'lesson-15-grandmaster' },
       { id: '9.3', title: 'Flawless Execution (Zero Errors allowed)', type: 'drill', estimatedMinutes: 10, lessonConfigId: 'lesson-15-grandmaster' },
-      { id: '9.4', title: 'Final Boss — TypeForge Grandmaster Test', type: 'test', estimatedMinutes: 5, lessonConfigId: 'lesson-15-grandmaster', basePassingWpm: 80, basePassingAccuracy: 98 },
+      { id: '9.4', title: 'Final Boss — Keystra Grandmaster Test', type: 'test', estimatedMinutes: 5, lessonConfigId: 'lesson-15-grandmaster', basePassingWpm: 80, basePassingAccuracy: 98 },
     ],
   },
 ];

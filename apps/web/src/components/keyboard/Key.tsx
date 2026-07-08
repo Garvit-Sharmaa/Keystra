@@ -5,8 +5,8 @@ import {
   useKeyboardStore, selectKeyState, selectHeatmapEnabled,
   selectHeatmapData, selectShowFingerColors, selectHeatmapMode,
 } from '@/store/keyboardStore';
-import { FINGER_COLORS } from '@typing-master/shared';
-import type { KeyDefinition } from '@typing-master/shared';
+import { FINGER_COLORS } from '@keystra/shared';
+import type { KeyDefinition } from '@keystra/shared';
 
 // No hardcoded finger dark tints anymore. The finger color will be indicated by the bottom bar.
 

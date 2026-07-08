@@ -20,7 +20,7 @@ import {
   BookOpen, Zap, Gamepad2, Sword,
   CheckCircle2, Clock, ChevronRight,
 } from 'lucide-react';
-import type { Chapter, ChapterType } from '@typing-master/shared';
+import type { Chapter, ChapterType } from '@keystra/shared';
 
 // ─── Chapter type meta ────────────────────────────────────────────────────────
 

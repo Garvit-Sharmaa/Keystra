@@ -2,7 +2,7 @@
 import React from 'react';
 import { useKeyboardStore, selectKeyLookup } from '@/store/keyboardStore';
 import { Key } from './Key';
-import type { RowDefinition } from '@typing-master/shared';
+import type { RowDefinition } from '@keystra/shared';
 
 interface RowProps { rowDef: RowDefinition }
 

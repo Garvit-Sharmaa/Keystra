@@ -18,7 +18,7 @@
 import { useEffect, useRef } from 'react';
 import { useKeyboardStore } from '@/store/keyboardStore';
 import { useTypingStore, selectStatus, selectResults } from '@/store/typingStore';
-import { KEYBOARD_BRIDGE_RELEASE_DELAY_MS } from '@typing-master/shared';
+import { KEYBOARD_BRIDGE_RELEASE_DELAY_MS } from '@keystra/shared';
 
 // ── Custom event types (dispatched on window by useTypingEngine) ──────────────
 

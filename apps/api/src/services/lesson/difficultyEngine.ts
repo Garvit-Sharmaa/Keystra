@@ -25,7 +25,7 @@
  * Pure function — no I/O, fully testable.
  */
 
-import type { WordScore, WordScoreBreakdown } from '@typing-master/shared';
+import type { WordScore, WordScoreBreakdown } from '@keystra/shared';
 import { getKeyData } from './qwertyKeyData';
 
 // ── Tunable penalty weights ────────────────────────────────────────────────────

@@ -34,7 +34,7 @@ import InputCapture  from './InputCapture';
 import SessionTimer  from './SessionTimer';
 import ResultsPanel  from './ResultsPanel';
 import LiveKeyboard  from './LiveKeyboard';
-import { TIME_MODE_OPTIONS, WORDS_MODE_OPTIONS } from '@typing-master/shared';
+import { TIME_MODE_OPTIONS, WORDS_MODE_OPTIONS } from '@keystra/shared';
 
 // ── Live stats bar ─────────────────────────────────────────────────────────────
 const StatsBar = React.memo(function StatsBar() {

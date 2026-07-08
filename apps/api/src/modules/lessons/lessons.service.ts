@@ -11,7 +11,7 @@ import {
 } from '../../services/lesson/curriculum';
 import { generateSessionPayload } from '../../services/lesson/generationEngine';
 import { createError }           from '../../middleware/errorHandler';
-import type { LessonConfig }     from '@typing-master/shared';
+import type { LessonConfig }     from '@keystra/shared';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

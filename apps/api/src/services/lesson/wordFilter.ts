@@ -13,7 +13,7 @@
  *   cache backed by the same FilteredWordSet shape.
  */
 
-import type { LessonConfig, FilteredWordSet } from '@typing-master/shared';
+import type { LessonConfig, FilteredWordSet } from '@keystra/shared';
 import { getKeyData } from './qwertyKeyData';
 import { scoreWords, filterByTier } from './difficultyEngine';
 

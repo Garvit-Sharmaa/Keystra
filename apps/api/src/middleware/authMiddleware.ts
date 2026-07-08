@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwt';
 import { createError } from './errorHandler';
-import type { JwtPayload } from '@typing-master/shared';
+import type { JwtPayload } from '@keystra/shared';
 
 // ── Augment express Request with user payload ─────────────────────────────────
 declare global {

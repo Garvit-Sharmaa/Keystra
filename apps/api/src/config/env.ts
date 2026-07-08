@@ -41,7 +41,7 @@ const envSchema = z.object({
   QSTASH_CURRENT_SIGNING_KEY: z.string().optional(),
   QSTASH_NEXT_SIGNING_KEY:    z.string().optional(),
   // The public-facing URL of this API — QStash needs an https:// target to POST to.
-  // Example: https://api.typeforge.app  (no trailing slash)
+  // Example: https://api.keystra.app  (no trailing slash)
   PUBLIC_API_URL: z.string().url().optional(),
 });
 

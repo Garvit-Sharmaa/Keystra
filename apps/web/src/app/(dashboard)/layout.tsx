@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserStore, selectUser } from '@/store/userStore';
-import { RANK_COLORS } from '@typing-master/shared';
-import type { UserRank } from '@typing-master/shared';
+import { RANK_COLORS } from '@keystra/shared';
+import type { UserRank } from '@keystra/shared';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const NAV_LINKS = [

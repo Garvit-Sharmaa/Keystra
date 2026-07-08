@@ -2,7 +2,7 @@ import { pool } from '../../config/database';
 import { hashPassword, verifyPassword } from '../../utils/crypto';
 import { issueTokenPair }               from '../../utils/jwt';
 import { createError }                  from '../../middleware/errorHandler';
-import type { AuthTokens }              from '@typing-master/shared';
+import type { AuthTokens }              from '@keystra/shared';
 
 interface RegisterInput { email: string; username: string; password: string; }
 interface LoginInput    { email: string; password: string; }

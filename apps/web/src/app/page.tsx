@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'TypeForge — Adaptive Keyboard Intelligence',
+  title: 'Keystra — Adaptive Keyboard Intelligence',
 };
 
 export default function LandingPage() {
@@ -25,7 +25,7 @@ export default function LandingPage() {
             <span className="font-mono text-3xl text-white font-bold">TF</span>
           </div>
           <h1 className="font-sans text-5xl md:text-6xl font-bold tracking-tight text-correct">
-            TypeForge
+            Keystra
           </h1>
           <p className="font-sans text-sm uppercase tracking-[0.2em] text-violet font-semibold mt-2">
             Professional Typing Tutor

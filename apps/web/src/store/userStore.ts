@@ -1,7 +1,7 @@
 'use client';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { User, AuthTokens, UserStatistics } from '@typing-master/shared';
+import type { User, AuthTokens, UserStatistics } from '@keystra/shared';
 
 interface UserState {
   user:       User | null;
@@ -38,12 +38,12 @@ export const useUserStore = create<UserState>()(
         //    identity — which would cause their lessons/progression to
         //    flash visible before the fresh fetch resolves.
         //    useUserStore.persist.clearStorage() is the official Zustand API;
-        //    it keeps the key name DRY (no hardcoded 'tm-user' string here).
+        //    it keeps the key name DRY (no hardcoded 'keystra-user' string here).
         try { useUserStore.persist.clearStorage(); } catch { /* SSR guard */ }
       },
     }),
     {
-      name:    'tm-user',
+      name:    'keystra-user',
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ user: s.user, tokens: s.tokens }),
       onRehydrateStorage: () => (state) => {

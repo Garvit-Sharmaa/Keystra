@@ -6,7 +6,7 @@ import {
   selectHoveredKeyId, selectHeatmapData, selectHeatmapMode,
 } from '@/store/keyboardStore';
 import { Row } from './Row';
-import type { KeyboardLayout } from '@typing-master/shared';
+import type { KeyboardLayout } from '@keystra/shared';
 
 interface KeyboardProps {
   className?:     string;

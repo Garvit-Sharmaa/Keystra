@@ -21,8 +21,8 @@ import type {
   TypingResults,
   SessionStatus,
   LiveTypingStats,
-} from '@typing-master/shared';
-import { TIME_MODE_OPTIONS, WORDS_MODE_OPTIONS } from '@typing-master/shared';
+} from '@keystra/shared';
+import { TIME_MODE_OPTIONS, WORDS_MODE_OPTIONS } from '@keystra/shared';
 
 // ─── Default session config ───────────────────────────────────────────────────
 const DEFAULT_CONFIG: TypingSessionConfig = {

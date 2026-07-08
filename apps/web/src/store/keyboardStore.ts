@@ -23,8 +23,8 @@
 
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import type { KeyboardLayout, KeyLookupMap } from '@typing-master/shared';
-import { buildKeyLookup } from '@typing-master/shared';
+import type { KeyboardLayout, KeyLookupMap } from '@keystra/shared';
+import { buildKeyLookup } from '@keystra/shared';
 
 // ─── Visual State Types ───────────────────────────────────────────────────────
 

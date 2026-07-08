@@ -26,7 +26,7 @@
  * The router layer is responsible for fetching these inputs.
  */
 
-import type { LessonConfig, FilteredWordSet, WordScore } from '@typing-master/shared';
+import type { LessonConfig, FilteredWordSet, WordScore } from '@keystra/shared';
 import { buildFilteredWordSet } from './wordFilter';
 
 // ── Cognitive load constants ───────────────────────────────────────────────────

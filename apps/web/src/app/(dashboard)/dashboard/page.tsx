@@ -14,7 +14,7 @@ import WpmChart                                    from '@/components/dashboard/
 import { Keyboard }                                from '@/components/keyboard/Keyboard';
 import { useWeakKeyHeatmap }                       from '@/hooks/useWeakKeyHeatmap';
 import { useKeyboardStore }                        from '@/store/keyboardStore';
-import type { UserRank }                           from '@typing-master/shared';
+import type { UserRank }                           from '@keystra/shared';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatTime(ms: number): string {

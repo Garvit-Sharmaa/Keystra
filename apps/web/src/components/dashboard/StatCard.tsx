@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
-import { RANK_COLORS } from '@typing-master/shared';
-import type { UserRank } from '@typing-master/shared';
+import { RANK_COLORS } from '@keystra/shared';
+import type { UserRank } from '@keystra/shared';
 
 // ── StatCard ─────────────────────────────────────────────────────────────────
 // Premium Linear-style card. Light: white + soft drop shadow.
