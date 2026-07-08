@@ -19,11 +19,11 @@ const config: Config = {
           2:       'var(--surface-2)',
           3:       'var(--surface-3)',
         },
-        // Brand (same in both themes — violet is violet)
+        // Brand (Now Teal based on new palette, but keeping the 'violet' token name to prevent massive refactoring)
         violet: {
           DEFAULT: 'var(--violet)',
           light:   'var(--violet-light)',
-          dim:     '#4c1d95',
+          dim:     'var(--violet-dim)',
         },
         // Typing states — switch between light/dark text and error colours
         correct:   'var(--correct)',
@@ -66,13 +66,11 @@ const config: Config = {
         },
       },
       boxShadow: {
-        'glass':      '0 4px 30px rgba(0, 0, 0, 0.3)',
-        'glow':       '0 0 20px rgba(124, 58, 237, 0.4)',
-        // Premium card shadows (Phase 1 UI overhaul)
-        'card':       '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)',
-        'card-hover': '0 4px 12px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)',
+        'tactile':      '0 4px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
+        // Premium card shadows
+        'card':       '0 1px 3px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.1)',
+        'card-hover': '0 4px 12px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.15)',
         'card-inset': 'inset 0 1px 0 rgba(255,255,255,0.06)',
-        'purple-glow':'0 0 20px rgba(124,58,237,0.35)',
       },
       backdropBlur: {
         xs: '2px',
