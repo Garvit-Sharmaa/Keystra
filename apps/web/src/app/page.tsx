@@ -22,7 +22,7 @@ export default function LandingPage() {
         <div className="flex flex-col gap-1 items-center">
           {/* Classic software icon/logo stand-in */}
           <div className="w-16 h-16 bg-violet rounded-2xl flex items-center justify-center shadow-md mb-2">
-            <span className="font-mono text-3xl text-white font-bold">TF</span>
+            <span className="font-mono text-3xl text-white font-bold">KS</span>
           </div>
           <h1 className="font-sans text-5xl md:text-6xl font-bold tracking-tight text-correct">
             Keystra
