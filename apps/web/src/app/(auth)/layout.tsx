@@ -10,16 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             'radial-gradient(ellipse 70% 60% at 50% -5%, rgba(124,58,237,0.2) 0%, transparent 65%)',
         }}
       />
-      {/* Grid texture */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(167,139,250,1) 1px, transparent 1px), linear-gradient(90deg, rgba(167,139,250,1) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }}
-      />
+
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
