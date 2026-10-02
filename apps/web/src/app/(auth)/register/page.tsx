@@ -143,6 +143,31 @@ export default function RegisterPage() {
         </button>
       </form>
 
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-surface-3" />
+        <span className="text-untyped text-xs font-mono">or</span>
+        <div className="flex-1 h-px bg-surface-3" />
+      </div>
+
+      {/* OAuth buttons */}
+      <div className="flex gap-3">
+        {[
+          { label: 'Google', icon: 'G', href: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/auth/google` },
+          { label: 'GitHub', icon: '⌥', href: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/auth/github` },
+        ].map(({ label, icon, href }) => (
+          <a
+            key={label}
+            id={`oauth-reg-${label.toLowerCase()}`}
+            href={href}
+            className="flex-1 flex items-center justify-center gap-2 bg-surface-2 hover:bg-surface-3 hover:text-correct
+                       border border-surface-3 text-muted text-sm font-mono py-2.5 rounded-xl
+                       cursor-pointer transition-colors duration-150"
+          >
+            <span>{icon}</span> {label}
+          </a>
+        ))}
+      </div>
+
       <p className="text-center text-sm text-muted">
         Already have an account?{' '}
         <Link href="/login" className="text-violet-light hover:text-correct
