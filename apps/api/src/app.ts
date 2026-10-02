@@ -10,6 +10,7 @@ import sessionsRouter from './modules/sessions/sessions.router';
 import analyticsRouter from './modules/analytics/analytics.router';
 import lessonsRouter  from './modules/lessons/lessons.router';
 import webhooksRouter from './modules/webhooks/webhooks.router';
+import passport from './modules/auth/passport';
 import { env } from './config/env';
 
 // ── Extend Express.Request with rawBody ─────────────────────────────────────
@@ -73,6 +74,8 @@ export function createApp(): Application {
   // server-to-server caller; rate-limiting its retries would cause cascading
   // failures. Signature verification (inside the router) is the security gate.
   app.use('/api/webhooks', webhooksRouter);
+
+  app.use(passport.initialize());
 
   app.use('/api/auth',      authRouter);
   app.use('/api/sessions',  sessionsRouter);
