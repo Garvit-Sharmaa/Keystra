@@ -35,11 +35,22 @@ export default function OAuthCallbackPage() {
     
     // Fetch user profile
     authApi.me(accessToken).then((profile) => {
-      setUser(profile, {
-        accessToken,
-        refreshToken,
-        expiresIn: parseInt(expiresIn, 10),
-      });
+      setUser(
+        {
+          id: profile.sub,
+          email: profile.email,
+          username: profile.username,
+          rank: profile.rank as any,
+          xp: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          accessToken,
+          refreshToken,
+          expiresIn: parseInt(expiresIn, 10),
+        },
+      );
       router.replace('/dashboard');
     }).catch((err) => {
       console.error('Failed to fetch OAuth user profile', err);
