@@ -110,7 +110,6 @@ const ResultsPanel = React.memo(function ResultsPanel({
       role="dialog"
       aria-label="Session results"
     >
-      {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex flex-col items-center gap-2">
         <h2 className="text-2xl font-semibold text-correct">Session Complete</h2>
         <p className="text-muted text-sm font-mono">
@@ -119,14 +118,12 @@ const ResultsPanel = React.memo(function ResultsPanel({
         <XpBadge wpm={wpm} accuracy={accuracy} />
       </div>
 
-      {/* ── Pass / Fail banner ───────────────────────────────────────────────── */}
       <AnimatePresence>
         {hasGate && (
           <PassFailBanner passed={passed} reqWpm={reqWpm} reqAcc={reqAcc} />
         )}
       </AnimatePresence>
 
-      {/* ── Primary stats row ────────────────────────────────────────────────── */}
       <div className="flex items-center justify-center gap-12">
         <StatBlock label="WPM"    value={wpm}             />
         <div className="w-px h-12 bg-surface-3" />
@@ -135,7 +132,6 @@ const ResultsPanel = React.memo(function ResultsPanel({
         <StatBlock label="ACC"    value={`${accuracy}%`} />
       </div>
 
-      {/* ── Weak keys ────────────────────────────────────────────────────────── */}
       {topErrors.length > 0 && (
         <div className="flex flex-col items-center gap-2 w-full max-w-sm">
           <p className="stat-label">Weak Keys</p>
@@ -158,9 +154,7 @@ const ResultsPanel = React.memo(function ResultsPanel({
         </div>
       )}
 
-      {/* ── Action buttons ────────────────────────────────────────────────────── */}
       {isAcademy ? (
-        /* ── ACADEMY MODE: 4 specific buttons ─────────────────────────────── */
         <div className="flex flex-col items-center gap-3 w-full max-w-xs">
           {/* Row 1: Primary actions */}
           <div className="flex items-center gap-3 w-full">
@@ -231,7 +225,6 @@ const ResultsPanel = React.memo(function ResultsPanel({
           </p>
         </div>
       ) : (
-        /* ── PRACTICE MODE: compact Restart + optional Next ──────────────── */
         <div className="flex items-center gap-4">
           <button
             id="restart-btn"

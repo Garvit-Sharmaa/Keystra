@@ -29,7 +29,6 @@ CREATE TABLE IF NOT EXISTS weak_keys (
 CREATE INDEX IF NOT EXISTS idx_weak_keys_user_error
   ON weak_keys (user_id, error_rate DESC);
 
--- ── Function: upsert weak key stats ─────────────────────────────────────────
 -- Called by analyticsWorker after each session's keystroke_payload is processed.
 CREATE OR REPLACE FUNCTION upsert_weak_key(
   p_user_id      UUID,

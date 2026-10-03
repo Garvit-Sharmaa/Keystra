@@ -53,7 +53,6 @@ export function RankProgressBar({
 
   return (
     <div className="flex flex-col gap-1.5 w-full">
-      {/* ── Track ─────────────────────────────────────────────────────────── */}
       <div
         className="relative w-full rounded-full overflow-hidden
                    bg-slate-100 dark:bg-white/[0.06]
@@ -66,7 +65,6 @@ export function RankProgressBar({
         aria-valuemax={100}
         aria-label={`${rank} rank progress: ${pct}%`}
       >
-        {/* ── Metallic fill ───────────────────────────────────────────────── */}
         <div
           className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
           style={{
@@ -76,7 +74,6 @@ export function RankProgressBar({
           }}
         />
 
-        {/* ── Top-edge shine streak (depth illusion) ──────────────────────── */}
         <div
           className="absolute inset-y-0 left-0 rounded-full pointer-events-none"
           style={{
@@ -86,7 +83,6 @@ export function RankProgressBar({
         />
       </div>
 
-      {/* ── Label ─────────────────────────────────────────────────────────── */}
       {showLabel && (
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-mono tabular-nums text-slate-400 dark:text-slate-600">

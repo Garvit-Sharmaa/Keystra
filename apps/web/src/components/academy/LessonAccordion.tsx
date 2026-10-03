@@ -112,7 +112,6 @@ const LessonAccordion = memo(function LessonAccordion({
         borderClass,
       ].join(' ')}
     >
-      {/* ── Header ────────────────────────────────────────────────────────── */}
       <button
         id={`lesson-header-${lesson.id}`}
         disabled={lesson.isLocked}
@@ -189,7 +188,6 @@ const LessonAccordion = memo(function LessonAccordion({
         )}
       </button>
 
-      {/* ── Locked overlay bar ─────────────────────────────────────────────── */}
       {lesson.isLocked && (
         <div className="px-5 pb-3">
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg
@@ -202,7 +200,6 @@ const LessonAccordion = memo(function LessonAccordion({
         </div>
       )}
 
-      {/* ── Chapter list ───────────────────────────────────────────────────── */}
       <AnimatePresence initial={false}>
         {isOpen && !lesson.isLocked && (
           <motion.div

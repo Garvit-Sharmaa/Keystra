@@ -111,7 +111,6 @@ export function Keyboard({ className, layout: layoutProp, controlsSlot }: Keyboa
         ))}
       </svg>
 
-      {/* ── Heatmap tooltip overlay ──────────────────────────────────────────
            Rendered as HTML outside SVG so it can use backdrop-blur / z-index.
            pointer-events:none prevents it from swallowing mouse events meant
            for the SVG keys underneath. z-index:100 ensures no stacking buries it. */}

@@ -36,7 +36,6 @@ CREATE TRIGGER trg_user_stats_updated_at
   BEFORE UPDATE ON user_statistics
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
--- ── Function: upsert user stats after session ────────────────────────────
 -- Called by SQL in analyticsWorker (or directly via service).
 -- Uses incremental averages to avoid full re-aggregation on each session.
 CREATE OR REPLACE FUNCTION update_user_statistics(

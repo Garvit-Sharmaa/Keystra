@@ -13,7 +13,6 @@ ALTER TABLE users
 -- Fast leaderboard queries by XP
 CREATE INDEX IF NOT EXISTS idx_users_xp ON users (xp DESC);
 
--- ── Function: award XP and auto-level-up ─────────────────────────────────────
 -- Called inside the session submission transaction so XP updates are atomic.
 --
 -- Level formula: level = FLOOR(SQRT(xp / 100)) + 1
@@ -24,7 +23,6 @@ CREATE INDEX IF NOT EXISTS idx_users_xp ON users (xp DESC);
 --   XP 40000+  → level 21 (soft cap — future seasons can raise it)
 --
 -- Returns: (new_xp INT, new_level INT, leveled_up BOOL)
--- ─────────────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION award_xp(
   p_user_id UUID,
   p_xp_delta INTEGER
@@ -57,11 +55,9 @@ BEGIN
 END;
 $$;
 
--- ── Function: check and unlock achievements (called post-session) ─────────────
 -- Evaluates the session stats against each achievement's condition_json
 -- and inserts into user_achievements if not already earned.
 -- Returns the slugs of any newly unlocked achievements.
--- ─────────────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION check_session_achievements(
   p_user_id      UUID,
   p_wpm          INTEGER,

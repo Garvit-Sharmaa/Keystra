@@ -183,7 +183,6 @@ function PracticeContent() {
   return (
     <div className="flex h-full min-h-[calc(100dvh-52px)]">
 
-      {/* ── Adaptive Forge rail ─────────────────────────────────────────────── */}
       <ForgePanel
         onLaunchDrill={handleLaunchDrill}
         isLaunching={isLaunching}
@@ -191,7 +190,6 @@ function PracticeContent() {
         xpToday={todayXp}
       />
 
-      {/* ── Main Arena ──────────────────────────────────────────────────────── */}
       <motion.main
         className="flex-1 flex items-center justify-center overflow-auto"
         layout

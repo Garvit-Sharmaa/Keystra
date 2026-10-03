@@ -175,7 +175,6 @@ export default function DashboardPage() {
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-10 flex flex-col gap-10 animate-fade-in">
 
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight
@@ -208,7 +207,6 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* ── Guest banner ───────────────────────────────────────────────────── */}
       {isGuest && (
         <div className="flex items-center justify-between gap-4 rounded-2xl px-6 py-4
                         bg-purple-50 border border-purple-100
@@ -224,7 +222,6 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ── Error banner ───────────────────────────────────────────────────── */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-600
                         dark:bg-red-900/10 dark:border-red-500/20 dark:text-red-400
@@ -238,14 +235,12 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ── XP / Rank bar ──────────────────────────────────────────────────── */}
       {user && stats && (
         <PanelCard>
           <XpBar xp={stats.xp} rank={stats.rank as UserRank} />
         </PanelCard>
       )}
 
-      {/* ── Performance stats grid ─────────────────────────────────────────── */}
       <Section title="Performance" id="stats-section">
         {/* Top row — 4 cols */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -317,7 +312,6 @@ export default function DashboardPage() {
         </div>
       </Section>
 
-      {/* ── WPM chart ──────────────────────────────────────────────────────── */}
       <Section title="WPM Progression" id="chart-section">
         <PanelCard>
           {isLoading ? <Skeleton className="h-64" /> : (
@@ -328,7 +322,6 @@ export default function DashboardPage() {
         </PanelCard>
       </Section>
 
-      {/* ── Key Intelligence Heatmap ───────────────────────────────────────── */}
       <Section title="Key Intelligence Heatmap" id="heatmap-section">
         <PanelCard>
           <p className="text-slate-500 dark:text-slate-500 text-xs font-mono mb-1">

@@ -299,7 +299,6 @@ export default function TypingArena({ lessonId }: { lessonId?: string }) {
         disabled={status === 'finished'}
       />
 
-      {/* ── Ghost Keyboard ────────────────────────────────────────────────────
            Purely visual — observes hardware keystrokes via activeKey prop.
            In lesson mode, illuminates allowed keys with a persistent tint.
            Collapsed (opacity-0 + h-0) when session is finished to keep the

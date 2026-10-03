@@ -294,7 +294,6 @@ export default function ForgePanel({
                  backdrop-blur-sm overflow-hidden"
       style={{ minHeight: 'calc(100dvh - 52px)' }}
     >
-      {/* ── Toggle button ──────────────────────────────────────────────────── */}
       <button
         id="forge-toggle"
         onClick={() => setIsOpen((o) => !o)}
@@ -310,7 +309,6 @@ export default function ForgePanel({
           : <ChevronRight size={13} strokeWidth={2.5} />}
       </button>
 
-      {/* ── Collapsed state — icon strip ──────────────────────────────────── */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div
@@ -330,7 +328,6 @@ export default function ForgePanel({
         )}
       </AnimatePresence>
 
-      {/* ── Expanded panel content ─────────────────────────────────────────── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -344,7 +341,6 @@ export default function ForgePanel({
             style={{ width: 288 }}
           >
 
-            {/* ── Header ──────────────────────────────────────────────────── */}
             <div className="flex items-center gap-2">
               <Sparkles size={14} className="text-violet-light" strokeWidth={2} />
               <h2 className="font-mono text-xs font-bold text-correct tracking-wide">
@@ -354,7 +350,6 @@ export default function ForgePanel({
 
             <Divider />
 
-            {/* ── Session badge ────────────────────────────────────────────── */}
             <div>
               <SectionLabel>Today</SectionLabel>
               <SessionBadge sessionCount={sessionCount} xpToday={xpToday} />
@@ -362,7 +357,6 @@ export default function ForgePanel({
 
             <Divider />
 
-            {/* ── Weak Key Insights ────────────────────────────────────────── */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <SectionLabel>Weak Keys</SectionLabel>
@@ -430,7 +424,6 @@ export default function ForgePanel({
 
             <Divider />
 
-            {/* ── Drill Launcher ───────────────────────────────────────────── */}
             <div>
               <SectionLabel>Launch Drill</SectionLabel>
 
@@ -474,7 +467,6 @@ export default function ForgePanel({
 
             <Divider />
 
-            {/* ── Mini Heatmap legend ──────────────────────────────────────── */}
             {hasData && !isGuest && (
               <div>
                 <SectionLabel>Heatmap Scale (accuracy)</SectionLabel>

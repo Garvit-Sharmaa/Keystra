@@ -246,7 +246,6 @@ function LearnContent() {
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-10 animate-fade-in">
 
-      {/* ── Page header ─────────────────────────────────────────────────── */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
           <GraduationCap size={20} className="text-violet-light" strokeWidth={2} />
@@ -271,7 +270,6 @@ function LearnContent() {
         )}
       </div>
 
-      {/* ── Error ───────────────────────────────────────────────────────── */}
       {error && (
         <div className="mb-6 flex items-center gap-3 bg-incorrect/10 border border-incorrect/30
                         text-incorrect text-sm px-4 py-3 rounded-xl font-mono" role="alert">
@@ -289,7 +287,6 @@ function LearnContent() {
         </div>
       )}
 
-      {/* ── Guest nudge ─────────────────────────────────────────────────── */}
       {!user && !isLoading && (
         <div className="mb-6 glass border border-violet/20 rounded-2xl px-5 py-3
                         flex items-center justify-between gap-4">
@@ -306,7 +303,6 @@ function LearnContent() {
         </div>
       )}
 
-      {/* ── Skeleton ────────────────────────────────────────────────────── */}
       {isLoading && (
         <div className="flex flex-col gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -315,7 +311,6 @@ function LearnContent() {
         </div>
       )}
 
-      {/* ── Lesson accordions ────────────────────────────────────────────── */}
       {!isLoading && !error && (
         <div className="flex flex-col gap-4">
           {curriculum.map((lesson) => (
@@ -330,7 +325,6 @@ function LearnContent() {
         </div>
       )}
 
-      {/* ── Footer note ──────────────────────────────────────────────────── */}
       {!isLoading && !error && (
         <motion.p
           initial={{ opacity: 0 }}
@@ -342,7 +336,6 @@ function LearnContent() {
         </motion.p>
       )}
 
-      {/* ── Difficulty selector modal ─────────────────────────────────────── */}
       {pendingChapter && (
         <DifficultySelector
           chapter={pendingChapter}
@@ -352,7 +345,6 @@ function LearnContent() {
         />
       )}
 
-      {/* ── Pass/fail toast ──────────────────────────────────────────────── */}
       {toast && (
         <Toast toast={toast} onDismiss={() => setToast(null)} />
       )}

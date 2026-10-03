@@ -16,30 +16,25 @@ CREATE TABLE IF NOT EXISTS typing_sessions (
   id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id         UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 
-  -- ── Performance metrics (aggregated, permanent) ───────────────────────
   wpm             SMALLINT    NOT NULL CHECK (wpm >= 0 AND wpm <= 400),
   raw_wpm         SMALLINT    NOT NULL CHECK (raw_wpm >= 0 AND raw_wpm <= 400),
   accuracy        NUMERIC(5,2) NOT NULL CHECK (accuracy >= 0 AND accuracy <= 100),
   consistency     NUMERIC(5,2) NOT NULL DEFAULT 0
                               CHECK (consistency >= 0 AND consistency <= 100),
 
-  -- ── Session config (permanent) ────────────────────────────────────────
   duration_ms     INTEGER     NOT NULL CHECK (duration_ms > 0),
   mode            VARCHAR(20) NOT NULL CHECK (mode IN ('time','words','quote','zen')),
   language        VARCHAR(20) NOT NULL DEFAULT 'english',
   lesson_id       UUID        REFERENCES lessons(id) ON DELETE SET NULL,
 
-  -- ── Char/word counts (permanent) ─────────────────────────────────────
   word_count      SMALLINT    NOT NULL DEFAULT 0,
   correct_words   SMALLINT    NOT NULL DEFAULT 0,
   correct_chars   INTEGER     NOT NULL DEFAULT 0,
   total_chars     INTEGER     NOT NULL DEFAULT 0,
 
-  -- ── Anti-cheat flags ─────────────────────────────────────────────────
   is_flagged      BOOLEAN     NOT NULL DEFAULT false,
   flag_reason     VARCHAR(100),
 
-  -- ── Ephemeral keystroke payload (NULLed after 30-day archival) ───────
   -- Format: [{"k":"a","e":"a","c":1,"l":85,"p":0}, ...]
   -- NOTE: this column is intentionally NOT indexed — it is write-once, read-once.
   keystroke_payload JSONB,
