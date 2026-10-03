@@ -13,7 +13,6 @@ router.post('/login',    authRateLimiter, handleLogin);
 router.post('/refresh',  authRateLimiter, handleRefresh);
 router.get ('/me',       requireAuth,     handleMe);
 
-// ── OAuth Routes ──────────────────────────────────────────────────────────────
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 router.get(
   '/google/callback',

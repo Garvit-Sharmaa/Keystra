@@ -1,13 +1,4 @@
 'use client';
-/**
- * useSessionSubmit.ts
- *
- * Watches typingStore status. When it transitions to 'finished',
- * automatically submits the session to the API.
- *
- * Decoupled from the engine — the engine never touches the API.
- * Decoupled from the UI — the UI just reads the results from the store.
- */
 
 import { useEffect, useRef } from 'react';
 import { useTypingStore, selectStatus, selectResults, selectConfig, selectWords } from '@/store/typingStore';

@@ -1,15 +1,4 @@
 'use client';
-/**
- * LessonAccordion.tsx — A collapsible Lesson folder card.
- *
- * States:
- *   LOCKED    — padlock overlay, greyed text, no hover interaction
- *   CLOSED    — clickable header, progress ring, chapter count
- *   OPEN      — chapter list slides down via AnimatePresence
- *
- * The progress ring animates from 0 to (completedChapters/total * 360°)
- * on mount. When all chapters are complete, the ring glows green.
- */
 
 import React, { memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,7 +6,6 @@ import { Lock, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
 import type { Lesson, Chapter } from '@keystra/shared';
 import ChapterRow from './ChapterRow';
 
-// ─── Progress ring (SVG) ──────────────────────────────────────────────────────
 
 function ProgressRing({
   completed, total,
@@ -66,7 +54,6 @@ function ProgressRing({
   );
 }
 
-// ─── Difficulty tier dots ─────────────────────────────────────────────────────
 
 const DIFF_COLORS = ['#34d399','#60a5fa','#fbbf24','#f87171','#a78bfa'];
 
@@ -81,7 +68,6 @@ function DiffDots({ level }: { level: number }) {
   );
 }
 
-// ─── Main accordion ───────────────────────────────────────────────────────────
 
 interface LessonAccordionProps {
   lesson:      Lesson;

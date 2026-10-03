@@ -34,7 +34,6 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['trace','debug','info','warn','error','fatal']).default('info'),
   SENTRY_DSN: z.string().optional(),
 
-  // ── QStash (Upstash) — Phase 2 transport ────────────────────────────────────
   // Required in production; optional locally so dev env doesn't hard-crash.
   // The producer (bullmq.ts) guards against missing values at call-time.
   QSTASH_TOKEN:               z.string().optional(),

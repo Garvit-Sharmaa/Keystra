@@ -1,47 +1,17 @@
-/**
- * generationEngine.ts — Layer 5 & 6: Adaptive Text Generation.
- *
- * GENERATION STRATEGY:
- *   The output string is assembled from three weighted word pools:
- *
- *   Pool A — TARGET KEY words (40%):
- *     Words that contain at least one of LessonConfig.targetKeys.
- *     These introduce the NEW key the lesson focuses on.
- *
- *   Pool B — WEAK KEY words (25%):
- *     Words containing characters identified as weak in the user's analytics.
- *     Adaptive: increases time-on-key for the user's specific error patterns.
- *     Falls back to Pool A if the user has no weak key data.
- *
- *   Pool C — FILL words (35%):
- *     Remaining filtered words. Maintains flow and prevents repetition.
- *
- * COGNITIVE LOAD CONTROLS:
- *   1. No word is repeated until the full pool has been exhausted (shuffle bag).
- *   2. No more than 2 consecutive same-hand-dominant words.
- *   3. Minimum 2-word gap between occurrences of the same word.
- *   4. Word count: 20–30 (configurable via lessonConfig.wordCount).
- *
- * Pure function — no I/O. Accepts pre-built FilteredWordSet + weak keys list.
- * The router layer is responsible for fetching these inputs.
- */
 
 import type { LessonConfig, FilteredWordSet, WordScore } from '@keystra/shared';
 import { buildFilteredWordSet } from './wordFilter';
 
-// ── Cognitive load constants ───────────────────────────────────────────────────
 const DEFAULT_WORD_COUNT        = 25;
 const MIN_WORD_COUNT            = 20;
 const MAX_WORD_COUNT            = 30;
 const MAX_CONSECUTIVE_SAME_HAND = 2;    // max same-hand-dominant words in a row
 const MIN_REPEAT_GAP            = 2;    // words between re-use of same word
 
-// ── Pool weights ──────────────────────────────────────────────────────────────
 const WEIGHT_TARGET = 0.40;
 const WEIGHT_WEAK   = 0.25;
 // WEIGHT_FILL = 1 - WEIGHT_TARGET - WEIGHT_WEAK = 0.35
 
-// ── Internal types ────────────────────────────────────────────────────────────
 export interface GenerationResult {
   /** Space-joined word string — ready to set as the session text */
   text:           string;
@@ -53,7 +23,6 @@ export interface GenerationResult {
   lessonId:       string;
 }
 
-// ── Shuffle (Fisher-Yates) ────────────────────────────────────────────────────
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -63,7 +32,6 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-// ── Hand-dominance heuristic ──────────────────────────────────────────────────
 // A quick proxy based on whether more chars are left-hand or right-hand.
 // Used for the MAX_CONSECUTIVE_SAME_HAND constraint.
 const LEFT_HAND_CHARS  = new Set('qwertasdfgzxcvb');
@@ -79,7 +47,6 @@ function dominantHand(word: string): 'L' | 'R' | 'N' {
   return l > r ? 'L' : 'R';
 }
 
-// ── Pool builder ──────────────────────────────────────────────────────────────
 function buildPools(
   wordScores:   WordScore[],
   targetKeys:   string[],
@@ -105,7 +72,6 @@ function buildPools(
   return { target, weak, fill };
 }
 
-// ── Shuffle-bag word sampler ──────────────────────────────────────────────────
 // Ensures we exhaust each pool before repeating.
 class ShuffleBag {
   private bag:     WordScore[];
@@ -138,7 +104,6 @@ class ShuffleBag {
   get size() { return this.bag.length + this.used.length; }
 }
 
-// ── Main generation function ──────────────────────────────────────────────────
 
 /**
  * Generate an adaptive session text from a pre-built FilteredWordSet.
@@ -195,7 +160,6 @@ export function generateSessionText(
     if (fi < fArr.length) { interleaved.push('F'); fi++; }
   }
 
-  // ── Assemble words with cognitive-load constraints ─────────────────────────
   const result:     string[]    = [];
   const recentWords = new Set<string>(); // for MIN_REPEAT_GAP tracking
   const recentQueue: string[]   = [];
@@ -254,7 +218,6 @@ export function generateSessionText(
     }
   }
 
-  // ── Coverage reporting ─────────────────────────────────────────────────────
   const joined = result.join(' ');
   const targetKeysCovered = config.targetKeys.filter((k) =>
     joined.includes(k.toLowerCase()),
@@ -272,7 +235,6 @@ export function generateSessionText(
   };
 }
 
-// ── Top-level orchestrator (called by the route handler) ─────────────────────
 
 export interface GeneratePayloadInput {
   config:        LessonConfig;

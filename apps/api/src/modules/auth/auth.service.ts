@@ -7,7 +7,6 @@ import type { AuthTokens }              from '@keystra/shared';
 interface RegisterInput { email: string; username: string; password: string; }
 interface LoginInput    { email: string; password: string; }
 
-// ── Register ──────────────────────────────────────────────────────────────────
 export async function registerUser(
   input: RegisterInput,
 ): Promise<AuthTokens & { userId: string }> {
@@ -50,7 +49,6 @@ export async function registerUser(
   return { ...tokens, userId: user.id };
 }
 
-// ── Login ─────────────────────────────────────────────────────────────────────
 export async function loginUser(input: LoginInput): Promise<AuthTokens & { userId: string }> {
   const { rows } = await pool.query(
     `SELECT id, username, password_hash,
@@ -84,7 +82,6 @@ export async function loginUser(input: LoginInput): Promise<AuthTokens & { userI
   return { ...tokens, userId: user.id };
 }
 
-// ── Refresh ───────────────────────────────────────────────────────────────────
 export async function refreshTokens(userId: string): Promise<AuthTokens> {
   const { rows } = await pool.query(
     `SELECT u.id, u.email, u.username,

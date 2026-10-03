@@ -1,6 +1,5 @@
 import { pool } from '../../config/database';
 
-// ── Dashboard summary + WPM history ──────────────────────────────────────────
 export async function getDashboardData(userId: string) {
   const [statsResult, historyResult] = await Promise.all([
     // Denormalized stats row — instant read
@@ -58,7 +57,6 @@ export async function getDashboardData(userId: string) {
   };
 }
 
-// ── Weak keys for heatmap ─────────────────────────────────────────────────────
 export async function getWeakKeys(userId: string) {
   const { rows } = await pool.query(
     `SELECT key_char, error_rate, avg_latency_ms, total_count AS sample_count

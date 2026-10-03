@@ -10,7 +10,6 @@ import {
   type ApiDifficulty,
 } from './chapterMap';
 
-// ── Validation schema for POST /api/lessons/progress ─────────────────────────
 const MarkProgressSchema = z.object({
   chapterId:        z.string().regex(
     /^\d+\.\d+$/,
@@ -68,7 +67,6 @@ export async function handleMarkProgress(
     const userId = req.user!.sub;
     const { chapterId, difficulty, wpmAchieved, accuracyAchieved } = parsed.data;
 
-    // ── 1. Look up server-side chapter authority ──────────────────────────────
     const chapter = CHAPTER_MAP.get(chapterId);
     if (!chapter) {
       res.status(404).json({
@@ -81,7 +79,6 @@ export async function handleMarkProgress(
       return;
     }
 
-    // ── 2. Enforce pass/fail for test chapters ────────────────────────────────
     // Non-test chapters (tutorial, drill, game) are always markable complete.
     if (chapter.type === 'test' && chapter.basePassingWpm !== undefined) {
       const mod      = DIFFICULTY_MODIFIERS[difficulty as ApiDifficulty];
@@ -104,7 +101,6 @@ export async function handleMarkProgress(
       }
     }
 
-    // ── 3. Idempotent upsert ──────────────────────────────────────────────────
     await markChapterComplete({ userId, chapterId, difficulty, wpmAchieved, accuracyAchieved });
 
     res.status(200).json({ success: true });

@@ -5,7 +5,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { ApiError } from '@/lib/api';
 import type { Metadata } from 'next';
 
-// ── Input component ───────────────────────────────────────────────────────────
 function AuthInput({
   id, label, type, value, onChange, placeholder, autoComplete,
 }: {

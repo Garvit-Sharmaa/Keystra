@@ -12,7 +12,6 @@ export async function handleSubmitSession(
   try {
     const userId = req.user!.sub;
 
-    // ── Pre-validation sanitization ───────────────────────────────────────
     // Zod schema: lessonId is z.string().min(1).optional()
     // The frontend may send lessonId: "" for free-practice sessions.
     // An empty string passes the `optional()` check but FAILS `min(1)`.
@@ -29,7 +28,6 @@ export async function handleSubmitSession(
       }
     }
 
-    // ── Schema validation ─────────────────────────────────────────────────
     const parsed = SubmitSessionSchema.safeParse(body);
     if (!parsed.success) {
       return next(createError(
@@ -46,7 +44,6 @@ export async function handleSubmitSession(
       data: {
         sessionId:             result.sessionId,
         isFlagged:             result.isFlagged,
-        // ── Gamification ────────────────────────────────────────
         xpGained:              result.xpGained,
         newXp:                 result.newXp,
         newLevel:              result.newLevel,

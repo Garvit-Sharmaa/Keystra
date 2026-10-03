@@ -1,11 +1,3 @@
-/**
- * migrate.ts — Run all SQL migration files in order, idempotently.
- *
- * Uses a `migrations_log` table to track which files have already run.
- * Safe to run multiple times — already-applied migrations are skipped.
- *
- * Usage: npm run migrate
- */
 
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';

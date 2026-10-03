@@ -1,12 +1,3 @@
-/**
- * qwertyKeyData.ts — Canonical QWERTY physical key properties.
- *
- * Single source of truth for the backend lesson engine.
- * Mirrors the data in /public/layouts/qwerty-ansi.json but as a
- * compile-time constant for O(1) backend lookups without JSON parsing.
- *
- * Row encoding: 0=number, 1=top(QWERTY), 2=home(ASDF), 3=bottom(ZXCV), 4=thumb
- */
 
 export type KeyRow  = 0 | 1 | 2 | 3 | 4;
 export type Finger  = 'LP' | 'LR' | 'LM' | 'LI' | 'LT' | 'RT' | 'RI' | 'RM' | 'RR' | 'RP';
@@ -23,7 +14,6 @@ export interface PhysicalKey {
 
 /** Complete QWERTY layout key map. Keys are lowercase characters. */
 export const QWERTY: Readonly<Record<string, PhysicalKey>> = Object.freeze({
-  // ── Number row (row 0) ──────────────────────────────────────────────────────
   '`': { row: 0, finger: 'LP', hand: 'L', isPinky: true  },
   '1': { row: 0, finger: 'LP', hand: 'L', isPinky: true  },
   '2': { row: 0, finger: 'LR', hand: 'L', isPinky: false },
@@ -37,7 +27,6 @@ export const QWERTY: Readonly<Record<string, PhysicalKey>> = Object.freeze({
   '0': { row: 0, finger: 'RP', hand: 'R', isPinky: true  },
   '-': { row: 0, finger: 'RP', hand: 'R', isPinky: true  },
   '=': { row: 0, finger: 'RP', hand: 'R', isPinky: true  },
-  // ── Top row / QWERTY (row 1) ────────────────────────────────────────────────
   'q': { row: 1, finger: 'LP', hand: 'L', isPinky: true  },
   'w': { row: 1, finger: 'LR', hand: 'L', isPinky: false },
   'e': { row: 1, finger: 'LM', hand: 'L', isPinky: false },
@@ -51,7 +40,6 @@ export const QWERTY: Readonly<Record<string, PhysicalKey>> = Object.freeze({
   '[': { row: 1, finger: 'RP', hand: 'R', isPinky: true  },
   ']': { row: 1, finger: 'RP', hand: 'R', isPinky: true  },
   '\\':{ row: 1, finger: 'RP', hand: 'R', isPinky: true  },
-  // ── Home row / ASDF (row 2) ─────────────────────────────────────────────────
   'a': { row: 2, finger: 'LP', hand: 'L', isPinky: true  },
   's': { row: 2, finger: 'LR', hand: 'L', isPinky: false },
   'd': { row: 2, finger: 'LM', hand: 'L', isPinky: false },
@@ -63,7 +51,6 @@ export const QWERTY: Readonly<Record<string, PhysicalKey>> = Object.freeze({
   'l': { row: 2, finger: 'RR', hand: 'R', isPinky: false },
   ';': { row: 2, finger: 'RP', hand: 'R', isPinky: true  },
   "'": { row: 2, finger: 'RP', hand: 'R', isPinky: true  },
-  // ── Bottom row / ZXCV (row 3) ───────────────────────────────────────────────
   'z': { row: 3, finger: 'LP', hand: 'L', isPinky: true  },
   'x': { row: 3, finger: 'LR', hand: 'L', isPinky: false },
   'c': { row: 3, finger: 'LM', hand: 'L', isPinky: false },
@@ -74,7 +61,6 @@ export const QWERTY: Readonly<Record<string, PhysicalKey>> = Object.freeze({
   ',': { row: 3, finger: 'RM', hand: 'R', isPinky: false },
   '.': { row: 3, finger: 'RR', hand: 'R', isPinky: false },
   '/': { row: 3, finger: 'RP', hand: 'R', isPinky: true  },
-  // ── Thumb row (row 4) ───────────────────────────────────────────────────────
   ' ': { row: 4, finger: 'RT', hand: 'R', isPinky: false },
 });
 

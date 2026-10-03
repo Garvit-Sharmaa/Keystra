@@ -1,41 +1,7 @@
 'use client';
-/**
- * curriculum.ts — Frontend Lesson → Chapter hierarchy definition.
- *
- * ARCHITECTURE:
- *   This file is the single source of truth for the Academy UI structure.
- *   It maps the 10 existing backend LessonConfig IDs (from curriculum.ts on
- *   the API) into 4 pedagogically complete Lesson folders, each following
- *   the full mastery arc:
- *
- *     1. Intro (tutorial)         — what you'll learn and why
- *     2. Isolated Keys (drill)    — one key at a time, pure repetition
- *     3. Bigrams & Trigrams (drill) — two/three-key patterns
- *     4. Word Drills (drill)      — real words using the lesson's key set
- *     5. Sentence Drills (drill)  — natural prose at full speed
- *     6. Final Boss Test (test)   — gating the next Lesson
- *
- * NUMBERING CONVENTION:
- *   Chapter IDs are "<lessonNumber>.<chapterIndex>" — always localized.
- *   Lesson 1: 1.0, 1.1, 1.2, 1.3, 1.4, 1.5  (5 chapters + 1 test)
- *   Lesson 2: 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6  (6 chapters + 1 test)
- *   etc.
- *
- * MAPPING TO BACKEND:
- *   Each chapter has a `lessonConfigId` that references an existing
- *   LessonConfig ID in the API. Multiple chapters within the same Lesson
- *   folder can share the same `lessonConfigId` — the API's generation
- *   engine handles word variety through its random seeding.
- *
- * LOCK LOGIC (computed, not stored here):
- *   isLocked on each Lesson is computed at render time from the server-
- *   persisted completedChapterIds set. This file only defines the static
- *   curriculum shape.
- */
 
 import type { Chapter, Lesson } from '@keystra/shared';
 
-// ─── Static curriculum skeleton (isCompleted always false here) ───────────────
 // The AcademyPage hydrates isCompleted from the server before rendering.
 
 type ChapterTemplate = Omit<Chapter, 'isCompleted'>;
@@ -392,7 +358,6 @@ const CHAPTER_TEMPLATES: { lesson: Omit<Lesson, 'isLocked' | 'chapters'>; chapte
   },
 ];
 
-// ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
  * Build the full Lesson array with completion state hydrated from the

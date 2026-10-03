@@ -35,7 +35,6 @@ import { processStreak }             from '../../workers/streakWorker';
 
 const router = Router();
 
-// ── QStash Receiver (lazy) ────────────────────────────────────────────────────
 // Initialised on first call so the server still boots in local dev without
 // signing keys. getReceiver() returns null → verification is skipped with a
 // warning. NEVER skip in production — PUBLIC_API_URL + signing keys must be set.
@@ -60,7 +59,6 @@ function getReceiver(): Receiver | null {
   return _receiver;
 }
 
-// ── Webhook payload schema ────────────────────────────────────────────────────
 // Matches SessionWebhookPayload in bullmq.ts (the producer contract).
 const SessionWebhookSchema = z.object({
   sessionId: z.string().uuid(),
@@ -69,7 +67,6 @@ const SessionWebhookSchema = z.object({
   accuracy:  z.number().int().min(0).max(100),
 });
 
-// ── POST /api/webhooks/process-session ───────────────────────────────────────
 /**
  * QStash delivers here after dispatchSessionJobs() publishes a session event.
  *
@@ -80,7 +77,6 @@ const SessionWebhookSchema = z.object({
  *   4. Return 200 (success) or 500 (retry signal) accordingly
  */
 router.post('/process-session', async (req: Request, res: Response): Promise<void> => {
-  // ── 1. Signature verification ───────────────────────────────────────────────
   const receiver  = getReceiver();
 
   if (receiver) {
@@ -129,7 +125,6 @@ router.post('/process-session', async (req: Request, res: Response): Promise<voi
     logger.info('[Webhook] Signature verified ✓');
   }
 
-  // ── 2. Payload validation ───────────────────────────────────────────────────
   const parsed = SessionWebhookSchema.safeParse(req.body);
 
   if (!parsed.success) {
@@ -148,7 +143,6 @@ router.post('/process-session', async (req: Request, res: Response): Promise<voi
 
   logger.info({ sessionId, userId, wpm, accuracy }, '[Webhook] Processing session event');
 
-  // ── 3. Concurrent fan-out to all three pure worker functions ────────────────
   // Workers are independent — run them in parallel for lowest latency.
   // A single worker failure throws, which falls through to the 500 handler.
   // QStash will then retry the full payload; all three workers are idempotent

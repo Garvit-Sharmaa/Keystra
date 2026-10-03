@@ -1,26 +1,10 @@
 'use client';
-/**
- * useKeyboardBridge.ts
- *
- * Bridges Phase 1 (useTypingEngine / typingStore) → Phase 2 (keyboardStore).
- *
- * ARCHITECTURE CONTRACT:
- *   • This hook contains the ONLY coupling between the two systems.
- *   • It subscribes to typingStore via Zustand's subscribeWithSelector.
- *   • It NEVER calls useTypingEngine directly — it reads the store output only.
- *   • The engine's engineRef (keystroke events) is surfaced via the store's
- *     results field on completion. During a session we subscribe to a custom
- *     event emitted by useTypingEngine (KeyboardBridgeEvent).
- *   • Zero overhead on the keystroke hot path — the bridge reacts to events
- *     dispatched by the engine using a lightweight CustomEvent bus.
- */
 
 import { useEffect, useRef } from 'react';
 import { useKeyboardStore } from '@/store/keyboardStore';
 import { useTypingStore, selectStatus, selectResults } from '@/store/typingStore';
 import { KEYBOARD_BRIDGE_RELEASE_DELAY_MS } from '@keystra/shared';
 
-// ── Custom event types (dispatched on window by useTypingEngine) ──────────────
 
 export interface KeyPressEventDetail {
   code:      string;   // KeyboardEvent.code
@@ -45,7 +29,6 @@ export function dispatchTargetChangeEvent(detail: TargetChangeEventDetail) {
   window.dispatchEvent(new CustomEvent(TARGET_CHANGE_EVENT, { detail }));
 }
 
-// ── The bridge hook ───────────────────────────────────────────────────────────
 
 export function useKeyboardBridge() {
   const { pressKey, releaseKey, clearKeyError, setTargetKey,
@@ -55,7 +38,6 @@ export function useKeyboardBridge() {
   // Release timer map — one per keyId to handle overlapping presses
   const releaseTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-  // ── Listen to keypress events from the engine ─────────────────────────────
   useEffect(() => {
     const handleKeyPress = (e: Event) => {
       const { code, isCorrect } = (e as CustomEvent<KeyPressEventDetail>).detail;
@@ -91,7 +73,6 @@ export function useKeyboardBridge() {
     return () => window.removeEventListener(KEYPRESS_EVENT, handleKeyPress);
   }, [keyLookup, pressKey, releaseKey, clearKeyError]);
 
-  // ── Listen to target-change events from the engine ────────────────────────
   useEffect(() => {
     const handleTargetChange = (e: Event) => {
       const { code } = (e as CustomEvent<TargetChangeEventDetail>).detail;
@@ -106,7 +87,6 @@ export function useKeyboardBridge() {
     return () => window.removeEventListener(TARGET_CHANGE_EVENT, handleTargetChange);
   }, [keyLookup, setTargetKey]);
 
-  // ── React to session status changes ──────────────────────────────────────
   useEffect(() => {
     return useTypingStore.subscribe(
       selectStatus,
@@ -121,7 +101,6 @@ export function useKeyboardBridge() {
     );
   }, [resetKeyStates]);
 
-  // ── Load heatmap data after session completion ────────────────────────────
   useEffect(() => {
     return useTypingStore.subscribe(
       selectResults,

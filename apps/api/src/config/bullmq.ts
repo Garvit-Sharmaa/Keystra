@@ -1,19 +1,3 @@
-/**
- * bullmq.ts — Job dispatch layer.
- *
- * ═══════════════════════════════════════════════════════════════
- *  MIGRATION STATUS: PHASE 5 COMPLETE — BullMQ fully silenced.
- *
- *  This file now contains ONLY:
- *    1. dispatchSessionJobs() — QStash push producer (active)
- *    2. SessionWebhookPayload interface — producer/consumer contract
- *    3. QUEUES const + payload interfaces — kept for archivalWorker.ts import
- *       compatibility (file compiles but startArchivalWorker is disabled)
- *    4. BACKUP blocks for every removed BullMQ component
- *
- *  Zero Redis connections opened by this module.
- * ═══════════════════════════════════════════════════════════════
- */
 
 import { Client }  from '@upstash/qstash';
 import { env }     from './env';
@@ -74,10 +58,8 @@ export const streaksQueue      = new Queue(QUEUES.STREAKS,       _defaultQueueOp
 export const archivalQueue     = new Queue(QUEUES.ARCHIVAL,      _defaultQueueOpts);
 === END BACKUP ================================================================ */
 
-// ── END COMPATIBILITY SHIM ───────────────────────────────────────────────────
 
 
-// ── QStash client (lazy-initialised — fails loudly at call time if token missing) ──
 // We don't initialise at module load so that local dev without QSTASH_TOKEN
 // still boots successfully (workers haven't been removed yet in Phase 1).
 function getQStashClient(): Client {
@@ -90,7 +72,6 @@ function getQStashClient(): Client {
   return new Client({ token: env.QSTASH_TOKEN });
 }
 
-// ── Webhook payload shape ─────────────────────────────────────────────────────
 // This is the single contract between the producer (here) and the
 // God Handler consumer (Phase 3: /api/webhooks/process-session).
 export interface SessionWebhookPayload {
@@ -100,7 +81,6 @@ export interface SessionWebhookPayload {
   accuracy:  number;
 }
 
-// ── NEW: dispatchSessionJobs — QStash push transport ────────────────────────
 /**
  * Fire-and-forget: push a single JSON webhook to QStash.
  * QStash will POST it to our /api/webhooks/process-session endpoint,
@@ -155,7 +135,6 @@ export async function dispatchSessionJobs(
 import { Queue, Worker, QueueOptions, WorkerOptions } from 'bullmq';
 import { redis } from './redis';
 
-// ── Queue names ───────────────────────────────────────────────────────────────
 export const QUEUES = {
   ANALYTICS:    'analytics',
   ACHIEVEMENTS: 'achievements',
@@ -163,7 +142,6 @@ export const QUEUES = {
   ARCHIVAL:     'archival',
 } as const;
 
-// ── Job type payloads ─────────────────────────────────────────────────────────
 export interface AnalyticsJobPayload {
   sessionId: string;
   userId:    string;
@@ -184,7 +162,6 @@ export interface ArchivalJobPayload {
   olderThanDays: number;
 }
 
-// ── Shared connection config ──────────────────────────────────────────────────
 const connection = redis;
 
 const defaultQueueOpts: QueueOptions = {
@@ -197,7 +174,6 @@ const defaultQueueOpts: QueueOptions = {
   },
 };
 
-// ── Queue instances ───────────────────────────────────────────────────────────
 export const analyticsQueue    = new Queue(QUEUES.ANALYTICS,    defaultQueueOpts);
 export const achievementsQueue = new Queue(QUEUES.ACHIEVEMENTS,  defaultQueueOpts);
 export const streaksQueue      = new Queue(QUEUES.STREAKS,       defaultQueueOpts);

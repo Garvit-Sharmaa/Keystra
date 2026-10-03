@@ -19,7 +19,6 @@ import type { KeystrokeEvent } from '@keystra/shared';
 import { ANTI_CHEAT } from '@keystra/shared';
 import { dispatchKeyPressEvent, dispatchTargetChangeEvent } from '@/hooks/useKeyboardBridge';
 
-// ─── Engine transient state (lives in a ref, never triggers re-renders) ───────
 interface EngineState {
   wordIdx:   number;
   charIdx:   number;
@@ -45,7 +44,6 @@ interface EngineState {
   caretNeedsUpdate: boolean;
 }
 
-// ─── Hook return type ─────────────────────────────────────────────────────────
 export interface TypingEngineHandles {
   /** 2-D ref grid: charRefs[wordIdx][charIdx] = <span> DOM node */
   charRefs:  React.MutableRefObject<(HTMLSpanElement | null)[][]>;
@@ -65,7 +63,6 @@ export interface TypingEngineHandles {
   startNewSession: () => void;
 }
 
-// ─── Word list (200 common English words) ────────────────────────────────────
 const WORD_LIST = [
   'the','be','to','of','and','a','in','that','have','it','for','not','on',
   'with','he','as','you','do','at','this','but','his','by','from','they','we',
@@ -94,7 +91,6 @@ function pickWords(count: number): string[] {
   return result;
 }
 
-// ─── char → KeyboardEvent.code (for bridge target dispatch) ──────────────────
 const CHAR_TO_CODE: Record<string, string> = {
   ' ':'Space','\n':'Enter','\t':'Tab',
   'a':'KeyA','b':'KeyB','c':'KeyC','d':'KeyD','e':'KeyE','f':'KeyF',
@@ -112,24 +108,20 @@ function charToCode(char: string): string {
   return CHAR_TO_CODE[char.toLowerCase()] ?? `Key${char.toUpperCase()}`;
 }
 
-// ─── Char class helpers (direct DOM mutation, no React) ───────────────────────
 const setCharClass = (el: HTMLSpanElement | null | undefined, cls: string) => {
   if (el) el.className = `char ${cls}`;
 };
 
-// ─── Main hook ────────────────────────────────────────────────────────────────
 export function useTypingEngine(): TypingEngineHandles {
   const { config, words, status, initSession, setStatus, setCountdown,
           updateLiveStats, completeSession, resetSession } = useTypingStore();
 
-  // ── DOM Refs ──────────────────────────────────────────────────────────────
   const charRefs   = useRef<(HTMLSpanElement | null)[][]>([]);
   const wordRefs   = useRef<(HTMLSpanElement | null)[]>([]);
   const caretRef   = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const inputRef   = useRef<HTMLInputElement | null>(null);
 
-  // ── Transient engine state (zero Zustand overhead) ────────────────────────
   const engineRef = useRef<EngineState>({
     wordIdx:   0,
     charIdx:   0,
@@ -145,12 +137,10 @@ export function useTypingEngine(): TypingEngineHandles {
     caretNeedsUpdate: false,
   });
 
-  // ── Interval handles ──────────────────────────────────────────────────────
   const statsIntervalRef    = useRef<ReturnType<typeof setInterval> | null>(null);
   const timerIntervalRef    = useRef<ReturnType<typeof setInterval> | null>(null);
   const caretBlinkTimeoutRef= useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Bug 1 fix: track first-keystroke with a ref, NOT `status` state ────────
   // `handleKeyDown` closes over a snapshot of `status`. Under React's batched
   // update scheduling, the second keystroke can arrive before the re-render
   // caused by setStatus('running') has flushed — meaning `status` still reads
@@ -158,12 +148,9 @@ export function useTypingEngine(): TypingEngineHandles {
   // A ref update is synchronous and never goes stale across renders.
   const hasStartedRef = useRef<boolean>(false);
 
-  // ── Session time tracking ─────────────────────────────────────────────────
   const timeRemainingRef = useRef<number>(config.duration);
 
-  // ─────────────────────────────────────────────────────────────────────────
   // CARET POSITIONING — direct DOM, zero React overhead
-  // ─────────────────────────────────────────────────────────────────────────
   const updateCaretPosition = useCallback(() => {
     const { wordIdx, charIdx } = engineRef.current;
     const caret   = caretRef.current;
@@ -186,10 +173,8 @@ export function useTypingEngine(): TypingEngineHandles {
     caret.style.height = `${targetRect.height}px`;
   }, []);
 
-  // ─────────────────────────────────────────────────────────────────────────
   // ROW SCROLL — smoothly scroll the word container so the current word
   //              is always in the middle (2nd) row.
-  // ─────────────────────────────────────────────────────────────────────────
   const scrollToCurrentWord = useCallback(() => {
     const { wordIdx } = engineRef.current;
     const wordEl  = wordRefs.current[wordIdx];
@@ -207,9 +192,7 @@ export function useTypingEngine(): TypingEngineHandles {
     }
   }, []);
 
-  // ─────────────────────────────────────────────────────────────────────────
   // CARET BLINK MANAGEMENT — stop blinking while typing, resume on pause
-  // ─────────────────────────────────────────────────────────────────────────
   const setCaretTyping = useCallback((typing: boolean) => {
     const caret = caretRef.current;
     if (!caret) return;
@@ -224,9 +207,7 @@ export function useTypingEngine(): TypingEngineHandles {
     }
   }, []);
 
-  // ─────────────────────────────────────────────────────────────────────────
   // COMPUTE FINAL RESULTS
-  // ─────────────────────────────────────────────────────────────────────────
   const buildResults = useCallback(() => {
     const e = engineRef.current;
     const elapsedMs = e.sessionStartTime
@@ -271,18 +252,14 @@ export function useTypingEngine(): TypingEngineHandles {
     };
   }, [words.length]);
 
-  // ─────────────────────────────────────────────────────────────────────────
   // SESSION COMPLETION
-  // ─────────────────────────────────────────────────────────────────────────
   const finishSession = useCallback(() => {
     if (statsIntervalRef.current)  clearInterval(statsIntervalRef.current);
     if (timerIntervalRef.current)  clearInterval(timerIntervalRef.current);
     completeSession(buildResults());
   }, [buildResults, completeSession]);
 
-  // ─────────────────────────────────────────────────────────────────────────
   // START SESSION INTERVALS (stats tick + countdown timer)
-  // ─────────────────────────────────────────────────────────────────────────
   const startIntervals = useCallback(() => {
     // 500 ms stats tick — only Zustand call during active typing
     statsIntervalRef.current = setInterval(() => {
@@ -323,9 +300,7 @@ export function useTypingEngine(): TypingEngineHandles {
     }
   }, [finishSession, updateLiveStats]);
 
-  // ─────────────────────────────────────────────────────────────────────────
   // START NEW SESSION (called on mount + when config changes + restart)
-  // ─────────────────────────────────────────────────────────────────────────
   const startNewSession = useCallback(() => {
     // Clear any running intervals
     if (statsIntervalRef.current) clearInterval(statsIntervalRef.current);
@@ -334,7 +309,6 @@ export function useTypingEngine(): TypingEngineHandles {
     const liveConfig = useTypingStore.getState().config;
     const liveWords  = useTypingStore.getState().words;
 
-    // ── Word selection: STRICT mode branch ───────────────────────────────────
     //
     // LESSON MODE  (liveConfig.lessonId is set):
     //   Use liveWords — the backend-filtered word list already loaded into the
@@ -366,7 +340,6 @@ export function useTypingEngine(): TypingEngineHandles {
         `words[${newWords.length}]:`, newWords.slice(0, 6),
       );
     } else if (liveConfig.lessonId && liveWords.length === 0) {
-      // ── CONFIG ERROR: lesson ID set but no words loaded ─────────────────
       // DO NOT fall back to pickWords() — that silently bypasses allowedKeys.
       // Render an impossible sentinel pair so the misconfiguration is obvious.
       console.error(
@@ -403,7 +376,6 @@ export function useTypingEngine(): TypingEngineHandles {
       keystrokeEvents:   [],
       caretNeedsUpdate:  false,
     };
-    // Bug 1 fix: reset the start-gate ref so the next session initialises cleanly
     hasStartedRef.current = false;
     timeRemainingRef.current = liveConfig.duration;
 
@@ -421,9 +393,7 @@ export function useTypingEngine(): TypingEngineHandles {
     });
   }, [initSession, updateCaretPosition]);
 
-  // ─────────────────────────────────────────────────────────────────────────
   // CORE KEYSTROKE HANDLER — the hot path. Zero Zustand calls here.
-  // ─────────────────────────────────────────────────────────────────────────
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       // Only handle printable chars, space, and backspace
@@ -435,13 +405,6 @@ export function useTypingEngine(): TypingEngineHandles {
       const word   = words[wordIdx];
       if (!word) return;
 
-      // ── First keystroke: transition idle → running ──────────────────────
-      // Bug 1 fix: gate on `hasStartedRef` (a synchronous ref) instead of
-      // the `status` state value. `status` is a stale closure snapshot —
-      // rapid keypresses arrive before React flushes setStatus('running'),
-      // so the second keystroke would read `status === 'idle'` and call
-      // startIntervals() again, spawning a duplicate interval and a
-      // duplicate countdown timer. The ref update is instantaneous.
       if (!hasStartedRef.current) {
         hasStartedRef.current    = true;
         eng.sessionStartTime     = performance.now();
@@ -450,15 +413,12 @@ export function useTypingEngine(): TypingEngineHandles {
         startIntervals();
       }
 
-      // Bug 1 fix: read live status from store (bypasses stale closure) to
-      // guard against keypresses that race with session completion.
       if (useTypingStore.getState().status === 'finished') return;
 
       const now     = performance.now();
       const latency = eng.lastKeyTime ? now - eng.lastKeyTime : 0;
       eng.lastKeyTime = now;
 
-      // ── BACKSPACE ───────────────────────────────────────────────────────
       if (e.key === 'Backspace') {
         if (eng.charIdx > 0) {
           eng.charIdx--;
@@ -479,7 +439,6 @@ export function useTypingEngine(): TypingEngineHandles {
         return;
       }
 
-      // ── SPACE: attempt to advance word ──────────────────────────────────
       if (e.key === ' ') {
         e.preventDefault();
         if (eng.input.length === 0) return; // must type at least 1 char
@@ -499,12 +458,6 @@ export function useTypingEngine(): TypingEngineHandles {
         eng.charIdx = 0;
         eng.input   = '';
 
-        // Bug 2 fix: end-of-array check applies to ALL modes, not just 'words'.
-        // In time mode, if the user is on the last word and hits Space, they
-        // would previously get trapped — wordIdx advances past the array bound,
-        // every subsequent keypress hits `words[wordIdx] === undefined` and
-        // returns early, forcing them to wait for the clock to expire.
-        // Symmetrically mirrors the existing words-mode completion check.
         if (eng.wordIdx >= words.length) {
           finishSession();
           return;
@@ -516,7 +469,6 @@ export function useTypingEngine(): TypingEngineHandles {
         return;
       }
 
-      // ── PRINTABLE CHARACTER ──────────────────────────────────────────────
       if (e.key.length !== 1) return;
 
       const expectedChar = word[charIdx];
@@ -560,7 +512,6 @@ export function useTypingEngine(): TypingEngineHandles {
         dispatchTargetChangeEvent({ code: charToCode(nextChar) });
       }
 
-      // ── Directly mutate the char span's class ──────────────────────────
       setCharClass(
         charRefs.current[wordIdx]?.[charIdx],
         isCorrect ? 'correct' : 'incorrect',
@@ -573,25 +524,16 @@ export function useTypingEngine(): TypingEngineHandles {
       updateCaretPosition();
       setCaretTyping(true);
     },
-    // Bug 1 fix: `status` removed from deps — the start-gate now uses
-    // `hasStartedRef` (immune to stale closure) and the finished guard uses
-    // `useTypingStore.getState().status` (a live store read). Removing `status`
-    // prevents the closure from being recreated on every status transition,
-    // which was itself a source of the timer initialisation race.
     [words, config.mode, setStatus, startIntervals,
      updateCaretPosition, scrollToCurrentWord, setCaretTyping, finishSession],
   );
 
-  // ─────────────────────────────────────────────────────────────────────────
   // WRAPPER CLICK → focus hidden input
-  // ─────────────────────────────────────────────────────────────────────────
   const handleWrapperClick = useCallback(() => {
     inputRef.current?.focus();
   }, []);
 
-  // ─────────────────────────────────────────────────────────────────────────
   // EFFECTS
-  // ─────────────────────────────────────────────────────────────────────────
 
   // Init on mount
   useEffect(() => {

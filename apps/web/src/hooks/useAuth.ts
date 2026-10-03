@@ -1,16 +1,4 @@
 'use client';
-/**
- * useAuth.ts — Auth hook for hydration, login, register, logout, and
- *              automatic access token refresh before expiry.
- *
- * Token strategy:
- *   • Access token:  in-memory (Zustand userStore) — not in localStorage,
- *                   protected from XSS script access.
- *   • Refresh token: persisted in Zustand (localStorage via persist middleware)
- *                   so sessions survive page refresh.
- *   • Automatic refresh: a setInterval fires at (expiresIn - 60)s to get a
- *                        new access token before expiry.
- */
 
 import { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -29,7 +17,6 @@ export function useAuth() {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRefreshingRef = useRef(false);
 
-  // ── Refresh Logic ─────────────────────────────────────────────────────────
   const doRefresh = useCallback(async (refreshToken: string) => {
     if (isRefreshingRef.current) return;
     isRefreshingRef.current = true;
@@ -56,14 +43,12 @@ export function useAuth() {
     }
   }, [storeLogout, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Schedule automatic token refresh ──────────────────────────────────────
   const scheduleRefresh = useCallback((expiresIn: number, refreshToken: string) => {
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
     const delay = Math.max((expiresIn - 60) * 1000, 5000);
     refreshTimerRef.current = setTimeout(() => doRefresh(refreshToken), delay);
   }, [doRefresh]);
 
-  // ── Hydrate from persisted store on mount ─────────────────────────────────
   useEffect(() => {
     if (!isHydrated) return;
 
@@ -76,7 +61,6 @@ export function useAuth() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHydrated]);
 
-  // ── Login ─────────────────────────────────────────────────────────────────
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     try {
@@ -97,7 +81,6 @@ export function useAuth() {
     }
   }, [setUser, setLoading, scheduleRefresh, router]);
 
-  // ── Register ──────────────────────────────────────────────────────────────
   const register = useCallback(async (
     email: string, username: string, password: string,
   ) => {
@@ -121,7 +104,6 @@ export function useAuth() {
     }
   }, [setUser, setLoading, scheduleRefresh, router]);
 
-  // ── Logout ────────────────────────────────────────────────────────────────
   const logout = useCallback(() => {
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
     useAnalyticsStore.getState().invalidate();
@@ -131,7 +113,6 @@ export function useAuth() {
     router.push('/login');
   }, [storeLogout, router]);
 
-  // ── Global 401 Listener ───────────────────────────────────────────────────
   useEffect(() => {
     const handleUnauthorized = () => {
       console.warn('[useAuth] Global 401 received.');

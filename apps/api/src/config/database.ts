@@ -2,7 +2,6 @@ import { Pool, PoolClient } from 'pg';
 import { env } from './env';
 import { logger } from '../utils/logger';
 
-// ── Connection Pool ───────────────────────────────────────────────────────────
 export const pool = new Pool({
   connectionString: env.DATABASE_URL,
   max:              20,   // max connections in pool
@@ -18,7 +17,6 @@ pool.on('error', (err) => {
   logger.error({ err }, 'Unexpected PostgreSQL pool error');
 });
 
-// ── Health check ─────────────────────────────────────────────────────────────
 export async function checkDatabaseConnection(): Promise<void> {
   let client: PoolClient | null = null;
   try {
@@ -33,7 +31,6 @@ export async function checkDatabaseConnection(): Promise<void> {
   }
 }
 
-// ── Transaction helper ───────────────────────────────────────────────────────
 export async function withTransaction<T>(
   fn: (client: PoolClient) => Promise<T>,
 ): Promise<T> {

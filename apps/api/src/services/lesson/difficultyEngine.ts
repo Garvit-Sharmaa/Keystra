@@ -1,34 +1,7 @@
-/**
- * difficultyEngine.ts — Biomechanical word difficulty scorer.
- *
- * SCORING MODEL (1–10 scale, one decimal place):
- *
- *   score = clamp(1, 10,
- *     BASE
- *     + LENGTH_FACTOR       // longer words = harder at speed
- *     + ROW_JUMP_PENALTY    // vertical finger travel
- *     + SAME_FINGER_PENALTY // worst ergonomic pattern
- *     + PINKY_PENALTY       // weaker finger, less accuracy
- *     + HAND_LOCK_PENALTY   // long same-hand runs increase cognitive load
- *     − ALTERNATION_BONUS   // hand alternation reduces total effort
- *   )
- *
- * CALIBRATION REFERENCE:
- *   "ad"     → ~1.5  (2-char, home-row, 1 pinky)
- *   "sad"    → ~2.1  (3-char, home-row, all-left, 1 pinky)
- *   "flask"  → ~3.0  (5-char, home-row, alternating, 1 pinky)
- *   "trade"  → ~4.8  (5-char, top+home row jump, index-index repeat)
- *   "extra"  → ~6.2  (5-char, top-row heavy, multiple row jumps)
- *   "puzzle" → ~7.1  (6-char, bottom+top row, pinky-heavy, same-finger)
- *   "zap"    → ~5.5  (3-char, bottom→home jump, pinky start)
- *
- * Pure function — no I/O, fully testable.
- */
 
 import type { WordScore, WordScoreBreakdown } from '@keystra/shared';
 import { getKeyData } from './qwertyKeyData';
 
-// ── Tunable penalty weights ────────────────────────────────────────────────────
 const W = {
   BASE:           1.0,
   /** Per character beyond the first */
@@ -45,7 +18,6 @@ const W = {
   ALTERNATION:    0.12,
 } as const;
 
-// ── Main scorer ────────────────────────────────────────────────────────────────
 
 /**
  * Score a single word using QWERTY biomechanical analysis.
@@ -64,7 +36,6 @@ export function scoreWord(word: string): WordScore | null {
   const keys = chars.map(getKeyData);
   if (keys.some((k) => k === null)) return null;
 
-  // ── Per-transition analysis ─────────────────────────────────────────────────
   let rowJumpDistance       = 0;
   let sameFingerRepetitions = 0;
   let handAlternations      = 0;
@@ -111,7 +82,6 @@ export function scoreWord(word: string): WordScore | null {
     handLockPenaltyTotal += W.HAND_LOCK;
   }
 
-  // ── Score assembly ──────────────────────────────────────────────────────────
   const n = chars.length;
 
   const lengthPenalty     = (n - 1) * W.LENGTH;
@@ -159,7 +129,6 @@ export function scoreWords(words: string[]): WordScore[] {
   return results;
 }
 
-// ── Difficulty tier helper ─────────────────────────────────────────────────────
 
 /** Score ranges for each LessonDifficulty tier */
 const TIER_RANGES: Record<1 | 2 | 3 | 4 | 5, [number, number]> = {

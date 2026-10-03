@@ -16,14 +16,12 @@ import { useWeakKeyHeatmap }                       from '@/hooks/useWeakKeyHeatm
 import { useKeyboardStore }                        from '@/store/keyboardStore';
 import type { UserRank }                           from '@keystra/shared';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function formatTime(ms: number): string {
   const h = Math.floor(ms / 3_600_000);
   const m = Math.floor((ms % 3_600_000) / 60_000);
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────────
 const Skeleton = ({ className = '' }: { className?: string }) => (
   <div className={[
     'animate-pulse rounded-2xl',
@@ -32,7 +30,6 @@ const Skeleton = ({ className = '' }: { className?: string }) => (
   ].join(' ')} />
 );
 
-// ── Section wrapper ───────────────────────────────────────────────────────────
 const Section = ({
   title, children, id,
 }: { title: string; children: React.ReactNode; id?: string }) => (
@@ -45,7 +42,6 @@ const Section = ({
   </section>
 );
 
-// ── Premium card wrapper (used for chart + heatmap containers) ────────────────
 const PanelCard = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
   <div className={[
     'rounded-2xl p-6',
@@ -57,7 +53,6 @@ const PanelCard = ({ children, className = '' }: { children: React.ReactNode; cl
   </div>
 );
 
-// ── Heatmap controls (unchanged logic, updated styling) ───────────────────────
 function HeatmapControls() {
   const { dimension, setDimension, isLoading, hasData, error, refetch } =
     useWeakKeyHeatmap('accuracy');
@@ -132,14 +127,12 @@ function HeatmapControls() {
   );
 }
 
-// ── Types ─────────────────────────────────────────────────────────────────────
 interface DashStats {
   totalSessions: number; avgWpm: number; bestWpm: number; avgRawWpm: number;
   avgAccuracy: number; totalTimeMs: number; streakDays: number; xp: number; rank: string;
 }
 interface WpmPoint { sessionIndex: number; wpm: number; accuracy: number; completedAt: string; }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const tokens = useUserStore(selectTokens);
   const user   = useUserStore(selectUser);

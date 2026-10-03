@@ -1,17 +1,4 @@
 'use client';
-/**
- * ThemeToggle.tsx — Sun/Moon button for light ↔ dark mode switching.
- *
- * Hydration safety:
- *   next-themes cannot know the theme during SSR (it's stored in localStorage
- *   or a cookie, which are client-only). Rendering theme-dependent UI before
- *   the client has hydrated causes a mismatch error.
- *
- *   Solution: track `mounted` state. Return a same-sized placeholder `<div>`
- *   until the component has mounted on the client. This keeps the server-
- *   rendered and client-first-render HTML identical, then swaps in the real
- *   button after hydration — no flash, no mismatch.
- */
 
 import { useEffect, useState } from 'react';
 import { useTheme }            from 'next-themes';
@@ -24,7 +11,6 @@ export function ThemeToggle() {
   // Only run on client — signals that hydration is complete
   useEffect(() => { setMounted(true); }, []);
 
-  // ── Pre-hydration placeholder — exact same dimensions as the real button ──
   // Must match the button's w/h so layout does not shift on mount.
   if (!mounted) {
     return <div className="w-9 h-9" aria-hidden="true" />;

@@ -1,23 +1,8 @@
-/**
- * wordFilter.ts — Layer 2: O(n) dictionary filtering by LessonConfig constraints.
- *
- * PERFORMANCE CONTRACT:
- *   • allowedKeySet is built once from the LessonConfig (O(k)).
- *   • Each word is tested in a single pass — O(m) where m = word.length.
- *   • The full filter over a 10k-word dictionary: ~2 ms on Node 20.
- *   • Results are cached by lessonId with a configurable TTL.
- *
- * CACHE STRATEGY:
- *   An in-process Map<lessonId, FilteredWordSet> with timestamp-based
- *   invalidation. For multi-process deployments, replace with a Redis
- *   cache backed by the same FilteredWordSet shape.
- */
 
 import type { LessonConfig, FilteredWordSet } from '@keystra/shared';
 import { getKeyData } from './qwertyKeyData';
 import { scoreWords, filterByTier } from './difficultyEngine';
 
-// ── Cache ─────────────────────────────────────────────────────────────────────
 
 const CACHE_TTL_MS = 10 * 60 * 1_000; // 10 minutes
 const cache = new Map<string, FilteredWordSet>();
@@ -32,7 +17,6 @@ function cacheGet(lessonId: string): FilteredWordSet | null {
   return cached;
 }
 
-// ── Core filter ────────────────────────────────────────────────────────────────
 
 /**
  * Build the character-level allowed-key set from a LessonConfig.
@@ -70,7 +54,6 @@ function wordPassesFilter(word: string, allowedSet: Set<string>): boolean {
   return true;
 }
 
-// ── Public API ─────────────────────────────────────────────────────────────────
 
 /**
  * Filter a dictionary against a LessonConfig and return scored, sorted words.
@@ -87,13 +70,11 @@ export function buildFilteredWordSet(
   config:     LessonConfig,
   useCache    = true,
 ): FilteredWordSet {
-  // ── Cache hit ────────────────────────────────────────────────────────────────
   if (useCache) {
     const hit = cacheGet(config.id);
     if (hit) return hit;
   }
 
-  // ── Filter ───────────────────────────────────────────────────────────────────
   const tier        = config.baseDifficulty;
   const minLen      = config.minWordLength ?? 2;
   const maxLen      = config.maxWordLength ?? 8;
@@ -114,7 +95,6 @@ export function buildFilteredWordSet(
     }
   }
 
-  // ── Score + tier filter ──────────────────────────────────────────────────────
   const allScored = scoreWords(passing);
   let   tiered    = filterByTier(allScored, tier);
 
@@ -124,7 +104,6 @@ export function buildFilteredWordSet(
     tiered = allScored;
   }
 
-  // ── Build result ─────────────────────────────────────────────────────────────
   const result: FilteredWordSet = {
     words:         tiered,
     totalExamined,

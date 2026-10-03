@@ -1,24 +1,4 @@
 'use client';
-/**
- * TypingArena — orchestrator component.
- *
- * RENDER BUDGET:
- *   • Renders once on mount (status idle).
- *   • Renders once on 'running' (caret starts, input enabled).
- *   • Renders every 500 ms for live stats (only the stat bar subtree).
- *   • Renders once on 'finished' (ResultsPanel overlaid).
- *   • NEVER re-renders on individual keystrokes.
- *
- * Tree structure:
- *   TypingArena
- *   ├── LessonBreadcrumb (lesson mode only — renders once per session)
- *   ├── ConfigBar        (practice mode only — renders once, only on config change)
- *   ├── StatsBar         (WPM + ACC — re-renders every 500 ms via selector)
- *   ├── WordDisplay      (word/char grid — renders ONCE, ref-mutated after)
- *   ├── InputCapture     (hidden input — renders once)
- *   ├── SessionTimer     (time — re-renders every 1 s)
- *   └── ResultsPanel     (overlay — renders once on finish)
- */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -36,7 +16,6 @@ import ResultsPanel  from './ResultsPanel';
 import LiveKeyboard  from './LiveKeyboard';
 import { TIME_MODE_OPTIONS, WORDS_MODE_OPTIONS } from '@keystra/shared';
 
-// ── Live stats bar ─────────────────────────────────────────────────────────────
 const StatsBar = React.memo(function StatsBar() {
   const { wpm, accuracy } = useTypingStore(selectLiveStats);
   return (
@@ -53,7 +32,6 @@ const StatsBar = React.memo(function StatsBar() {
   );
 });
 
-// ── Config bar (practice mode only) ───────────────────────────────────────────
 const ConfigBar = React.memo(function ConfigBar({
   onModeChange,
   onDurationChange,
@@ -124,7 +102,6 @@ const ConfigBar = React.memo(function ConfigBar({
   );
 });
 
-// ── Lesson breadcrumb (lesson mode only) ──────────────────────────────────────
 const LessonBreadcrumb = React.memo(function LessonBreadcrumb({
   lessonId,
   isRegenerating,
@@ -171,7 +148,6 @@ const LessonBreadcrumb = React.memo(function LessonBreadcrumb({
   );
 });
 
-// ── Main Arena ─────────────────────────────────────────────────────────────────
 export default function TypingArena({ lessonId }: { lessonId?: string }) {
   const isLesson  = Boolean(lessonId);
   const status    = useTypingStore(selectStatus);
@@ -184,9 +160,7 @@ export default function TypingArena({ lessonId }: { lessonId?: string }) {
   // Tracks whether we are awaiting a lesson regeneration (Tab restart in lesson mode)
   const [isRegenerating, setIsRegenerating] = useState(false);
 
-  // ── Session submission (fires automatically on status → 'finished') ─────────
   useSessionSubmit();
-  // ── Phase 2: keyboard visual bridge ────────────────────────────────────────
   useKeyboardBridge();
 
   const {
@@ -194,10 +168,6 @@ export default function TypingArena({ lessonId }: { lessonId?: string }) {
     handleWrapperClick, handleKeyDown, startNewSession,
   } = useTypingEngine();
 
-  // ── Lesson-aware restart ──────────────────────────────────────────────────
-  // Bug 1 fix: when in lesson mode, restarting must re-fetch from the backend
-  // so only allowedKeys-filtered words are generated.
-  // In practice mode, the engine's startNewSession() handles this directly.
   const regenerateLesson = useCallback(async () => {
     if (!lessonId || !tokens?.accessToken) {
       console.warn('[Academy] regenerateLesson: no lessonId or token — falling back to startNewSession');
@@ -256,7 +226,6 @@ export default function TypingArena({ lessonId }: { lessonId?: string }) {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [handleRestart]);
 
-  // ── Practice mode config handlers ────────────────────────────────────────
   const handleModeChange = useCallback((mode: 'time' | 'words') => {
     setConfig({ mode, lessonId: undefined });
     startNewSession();

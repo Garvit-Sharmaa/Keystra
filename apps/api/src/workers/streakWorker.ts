@@ -1,20 +1,7 @@
-/**
- * streakWorker.ts — Daily streak tracking and user_statistics sync.
- *
- * ═══════════════════════════════════════════════════════════════
- *  MIGRATION STATUS: PHASE 2 COMPLETE
- *
- *  The BullMQ Worker consumer is commented out below.
- *  processStreak() is now a plain exported async function.
- *  It is called by the QStash God Handler (Phase 3) via Promise.all.
- *  All PostgreSQL logic is unchanged — fully idempotent.
- * ═══════════════════════════════════════════════════════════════
- */
 
 import { pool }   from '../config/database';
 import { logger } from '../utils/logger';
 
-// ── NEW: pure exported function — no BullMQ Job wrapper ──────────────────────
 /**
  * Update the user's daily streak. Idempotent — calling multiple times on
  * the same day short-circuits immediately (lastDate === today guard).
@@ -25,7 +12,6 @@ export async function processStreak(userId: string): Promise<void> {
   const today     = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
 
-  // ── Atomic single-statement upsert ────────────────────────────────────────
   // All streak logic lives in SQL CASE expressions — no application-layer
   // read-modify-write. The DB row lock during UPDATE prevents concurrent
   // deliveries from racing. This is safe under any QStash retry scenario.

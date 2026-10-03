@@ -23,7 +23,6 @@ import { motion, AnimatePresence }    from 'framer-motion';
 import { RotateCcw, ChevronRight, GraduationCap, BarChart2, CheckCircle2, XCircle } from 'lucide-react';
 import { useTypingStore, selectResults } from '@/store/typingStore';
 
-// ── Stat block ────────────────────────────────────────────────────────────────
 
 const StatBlock = ({ label, value, sub }: {
   label: string; value: string | number; sub?: string;
@@ -35,7 +34,6 @@ const StatBlock = ({ label, value, sub }: {
   </div>
 );
 
-// ── XP earned badge ───────────────────────────────────────────────────────────
 
 function XpBadge({ wpm, accuracy }: { wpm: number; accuracy: number }) {
   const xp = Math.round(wpm * 0.8 + accuracy * 0.5);
@@ -54,7 +52,6 @@ function XpBadge({ wpm, accuracy }: { wpm: number; accuracy: number }) {
   );
 }
 
-// ── Pass / Fail banner ────────────────────────────────────────────────────────
 
 function PassFailBanner({ passed, reqWpm, reqAcc }: {
   passed: boolean; reqWpm: number; reqAcc: number;
@@ -78,7 +75,6 @@ function PassFailBanner({ passed, reqWpm, reqAcc }: {
   );
 }
 
-// ── Main panel ────────────────────────────────────────────────────────────────
 
 const ResultsPanel = React.memo(function ResultsPanel({
   onRestart,
@@ -94,7 +90,6 @@ const ResultsPanel = React.memo(function ResultsPanel({
   const { wpm, rawWpm, accuracy, correctWords, totalWords, durationMs } = results;
   const seconds = Math.round(durationMs / 1000);
 
-  // ── URL-driven context ──────────────────────────────────────────────────────
   const isAcademy = searchParams.get('isAcademy') === '1';
   const nextRoute = searchParams.get('nextRoute');       // /learn?autoLaunch=X or null
   const reqWpm    = parseInt(searchParams.get('reqWpm') ?? '0', 10);
@@ -103,7 +98,6 @@ const ResultsPanel = React.memo(function ResultsPanel({
   const passed    = Math.round(wpm) >= reqWpm && Math.round(accuracy) >= reqAcc;
   const canAdvance = nextRoute && (!hasGate || passed);
 
-  // ── Weak key errors ──────────────────────────────────────────────────────────
   const topErrors = Object.entries(results.weakKeyMap)
     .sort(([, a], [, b]) => b.errors / b.total - a.errors / a.total)
     .slice(0, 6);

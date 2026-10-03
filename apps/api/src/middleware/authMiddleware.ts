@@ -3,7 +3,6 @@ import { verifyAccessToken } from '../utils/jwt';
 import { createError } from './errorHandler';
 import type { JwtPayload } from '@keystra/shared';
 
-// ── Augment express Request with user payload ─────────────────────────────────
 declare global {
   namespace Express {
     interface Request {

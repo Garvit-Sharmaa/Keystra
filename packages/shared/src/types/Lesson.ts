@@ -1,11 +1,6 @@
-/**
- * Lesson.ts — Type contracts for the Phase 3 Lesson Composition Engine.
- * Pure data types — no runtime dependencies.
- */
 
 import type { FingerName, Hand } from './Keyboard';
 
-// ─── Lesson Configuration ─────────────────────────────────────────────────────
 
 /** Difficulty tier for curriculum sequencing */
 export type LessonDifficulty = 1 | 2 | 3 | 4 | 5;
@@ -30,7 +25,6 @@ export interface LessonConfig {
 
   description?: string;
 
-  // ── Key Constraints ─────────────────────────────────────────────────────────
 
   /**
    * Complete set of character keys permitted in generated text.
@@ -52,7 +46,6 @@ export interface LessonConfig {
    */
   lockedKeys?: string[];
 
-  // ── Finger Targeting ────────────────────────────────────────────────────────
 
   /**
    * Which fingers this lesson primarily exercises.
@@ -63,7 +56,6 @@ export interface LessonConfig {
   /** Optional hand restriction */
   handRestriction?: HandRestriction;
 
-  // ── Difficulty Parameters ───────────────────────────────────────────────────
 
   /**
    * Lesson tier (1=beginner → 5=expert).
@@ -80,7 +72,6 @@ export interface LessonConfig {
    */
   targetKeyFrequency?: number;
 
-  // ── Generation Hints ────────────────────────────────────────────────────────
 
   /** Number of words to generate per session. Default: 50 */
   wordCount?: number;
@@ -95,7 +86,6 @@ export interface LessonConfig {
   stage?: number;
 }
 
-// ─── Word Scoring ─────────────────────────────────────────────────────────────
 
 /**
  * Detailed penalty/bonus breakdown for a single word.
@@ -156,7 +146,6 @@ export interface WordScore {
   breakdown: WordScoreBreakdown;
 }
 
-// ─── Filtering Results ────────────────────────────────────────────────────────
 
 /** Result of running the WordFilteringEngine */
 export interface FilteredWordSet {
@@ -172,7 +161,6 @@ export interface FilteredWordSet {
   builtAt:        number;
 }
 
-// ─── Chapter / Lesson Progression ────────────────────────────────────────────
 // These types power the new Lesson-as-folder, Chapter-based curriculum UI.
 // They are UI/frontend types — the backend continues to operate on LessonConfig.
 

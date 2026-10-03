@@ -1,6 +1,3 @@
-/**
- * verifySchema.ts — Verify chapter_progress table schema post-migration.
- */
 import { pool } from '../config/database';
 
 async function verify(): Promise<void> {

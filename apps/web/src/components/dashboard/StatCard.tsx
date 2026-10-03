@@ -3,7 +3,6 @@ import React from 'react';
 import { RANK_COLORS } from '@keystra/shared';
 import type { UserRank } from '@keystra/shared';
 
-// ── StatCard ─────────────────────────────────────────────────────────────────
 // Premium Linear-style card. Light: white + soft drop shadow.
 // Dark: elevated navy + top inner highlight + subtle border.
 // Value is stark black/white for maximum contrast; label is tiny + uppercase.
@@ -83,7 +82,6 @@ export const StatCard = React.memo(function StatCard({
 });
 
 
-// ── RankBadge ─────────────────────────────────────────────────────────────────
 export function RankBadge({ rank }: { rank: UserRank }) {
   const color = RANK_COLORS[rank] ?? '#a78bfa';
   return (
@@ -103,7 +101,6 @@ export function RankBadge({ rank }: { rank: UserRank }) {
 }
 
 
-// ── XpBar (rank progress) ─────────────────────────────────────────────────────
 // The fill uses a metallic gradient keyed to the current rank tier.
 // Wrapped in a Step 3-style polished track.
 

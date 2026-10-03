@@ -1,20 +1,4 @@
 'use client';
-/**
- * DifficultySelector.tsx — The "Boss Fight" difficulty chooser modal.
- *
- * Renders as a full-screen backdrop blur overlay with a centered card.
- * Three difficulty options are displayed as large interactive cards:
- *   • Easy         → emerald gradient, 0.8× WPM / 90% accuracy
- *   • Intermediate → violet gradient, 1.0× WPM / 95% accuracy
- *   • Professional → rose-to-amber gradient, 1.5× WPM / 98% accuracy
- *
- * Props:
- *   chapter.basePassingWpm / chapter.basePassingAccuracy
- *   → scaled live by the selected difficulty before display.
- *
- * onConfirm(difficulty) is called when the user hits "Begin Test".
- * onCancel()            closes the modal without launching.
- */
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,7 +6,6 @@ import { Sword, X, Shield, Zap, Flame, ChevronRight } from 'lucide-react';
 import type { Difficulty, Chapter } from '@keystra/shared';
 import { DifficultyModifiers } from '@keystra/shared';
 
-// ─── Difficulty card meta ─────────────────────────────────────────────────────
 
 const DIFF_META: Record<Difficulty, {
   label:       string;
@@ -68,7 +51,6 @@ const DIFF_META: Record<Difficulty, {
 
 const DIFFICULTY_ORDER: Difficulty[] = ['easy', 'intermediate', 'professional'];
 
-// ─── Single difficulty card ────────────────────────────────────────────────────
 
 function DiffCard({
   difficulty,
@@ -146,7 +128,6 @@ function DiffCard({
   );
 }
 
-// ─── Main modal ───────────────────────────────────────────────────────────────
 
 interface DifficultySelectorProps {
   chapter:     Chapter;

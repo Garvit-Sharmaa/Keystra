@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 import type { JwtPayload, UserRank } from '@keystra/shared';
 
-// ── Token generation ──────────────────────────────────────────────────────────
 export function signAccessToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
   return jwt.sign(payload, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
@@ -17,7 +16,6 @@ export function signRefreshToken(userId: string): string {
   });
 }
 
-// ── Token verification ────────────────────────────────────────────────────────
 export function verifyAccessToken(token: string): JwtPayload {
   return jwt.verify(token, env.JWT_SECRET, { algorithms: ['HS256'] }) as JwtPayload;
 }
@@ -26,7 +24,6 @@ export function verifyRefreshToken(token: string): { sub: string } {
   return jwt.verify(token, env.JWT_REFRESH_SECRET, { algorithms: ['HS256'] }) as { sub: string };
 }
 
-// ── Token pair factory ────────────────────────────────────────────────────────
 export function issueTokenPair(user: {
   id: string;
   email: string;

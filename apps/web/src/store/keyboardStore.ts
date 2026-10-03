@@ -1,32 +1,10 @@
 'use client';
-/**
- * keyboardStore.ts — Zustand Visual State Machine for the Keyboard Engine.
- *
- * ARCHITECTURE CONTRACT:
- *   This store is the ONLY source of truth for what the keyboard LOOKS like.
- *   It knows nothing about the typing test logic — it only responds to
- *   commands from the bridge layer (useKeyboardBridge, built in Step 3).
- *
- * STATE PRIORITY (highest wins when multiple states are active):
- *   incorrect (3) > pressed (2) > target (1) > idle (0)
- *
- *   Example: a key that is simultaneously the target AND incorrectly pressed
- *   must render as `incorrect`, not `target`.
- *
- * PERFORMANCE CONTRACT:
- *   • `keyStates` is a flat Record<keyId, KeyVisualState> — O(1) reads.
- *   • `pressKey` / `releaseKey` update only the affected key's slice.
- *   • Components subscribe via fine-grained selectors, never the whole store.
- *   • Framer Motion animations are driven by `pressedAt` / `errorAt` timestamps
- *     (number | null), not by boolean flags, to avoid stale closure issues.
- */
 
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import type { KeyboardLayout, KeyLookupMap } from '@keystra/shared';
 import { buildKeyLookup } from '@keystra/shared';
 
-// ─── Visual State Types ───────────────────────────────────────────────────────
 
 /**
  * Priority-ordered visual states for a single key.
@@ -75,7 +53,6 @@ export interface KeyVisualState {
   errorAt: number | null;
 }
 
-// ─── Heatmap overlay types ────────────────────────────────────────────────────
 
 /**
  * Per-key analytics data for the heatmap overlay.
@@ -90,11 +67,9 @@ export interface HeatmapKeyData {
   sampleCount: number;
 }
 
-// ─── Store Interface ──────────────────────────────────────────────────────────
 
 export interface KeyboardVisualState {
 
-  // ── Layout (load-time config, never changes during a session) ─────────────
 
   /** Currently active keyboard layout (null before layout is loaded) */
   layout: KeyboardLayout | null;
@@ -106,7 +81,6 @@ export interface KeyboardVisualState {
    */
   keyLookup: KeyLookupMap | null;
 
-  // ── Live per-key visual state (the hot path) ──────────────────────────────
 
   /**
    * Flat map: KeyDefinition.id → KeyVisualState.
@@ -122,7 +96,6 @@ export interface KeyboardVisualState {
    */
   targetKeyId: string | null;
 
-  // ── Heatmap overlay ───────────────────────────────────────────────────────
 
   /** Toggle heatmap color overlay on/off */
   heatmapEnabled: boolean;
@@ -141,7 +114,6 @@ export interface KeyboardVisualState {
    */
   heatmapData: Record<string, HeatmapKeyData>;
 
-  // ── Display preferences ───────────────────────────────────────────────────
 
   /** Show finger-color coding on key backgrounds */
   showFingerColors: boolean;
@@ -149,7 +121,6 @@ export interface KeyboardVisualState {
   /** Show key labels (display / displayShift) inside SVG key bodies */
   showKeyLabels: boolean;
 
-  // ── Hover (heatmap tooltip) ───────────────────────────────────────────────
 
   /**
    * ID of the key currently under the cursor (heatmap mode only).
@@ -158,7 +129,6 @@ export interface KeyboardVisualState {
    */
   hoveredKeyId: string | null;
 
-  // ── Actions ───────────────────────────────────────────────────────────────
 
   /**
    * Load a keyboard layout and rebuild the lookup map.
@@ -239,7 +209,6 @@ export interface KeyboardVisualState {
   setHoveredKey: (keyId: string | null) => void;
 }
 
-// ─── Initial per-key state factory ───────────────────────────────────────────
 
 const IDLE_KEY_STATE: KeyVisualState = {
   priority:  'idle',
@@ -247,7 +216,6 @@ const IDLE_KEY_STATE: KeyVisualState = {
   errorAt:   null,
 };
 
-// ─── Priority resolver (pure function) ───────────────────────────────────────
 
 /**
  * Resolve the correct KeyVisualPriority given the store's current state for a key.
@@ -265,12 +233,10 @@ function resolveKeyPriority(
   return 'idle';
 }
 
-// ─── Store Implementation ─────────────────────────────────────────────────────
 
 export const useKeyboardStore = create<KeyboardVisualState>()(
   subscribeWithSelector((set, get) => ({
 
-    // ── Initial state ────────────────────────────────────────────────────────
     layout:          null,
     keyLookup:       null,
     keyStates:       {},
@@ -282,7 +248,6 @@ export const useKeyboardStore = create<KeyboardVisualState>()(
     showKeyLabels:   true,
     hoveredKeyId:    null,
 
-    // ── setLayout ────────────────────────────────────────────────────────────
     setLayout: (layout) => {
       const keyLookup = buildKeyLookup(layout);
       // Pre-populate keyStates with idle entries for all keys
@@ -293,7 +258,6 @@ export const useKeyboardStore = create<KeyboardVisualState>()(
       set({ layout, keyLookup, keyStates, targetKeyId: null });
     },
 
-    // ── setTargetKey ─────────────────────────────────────────────────────────
     setTargetKey: (newTargetKeyId) => {
       const { targetKeyId: prevTargetKeyId, keyStates } = get();
 
@@ -323,7 +287,6 @@ export const useKeyboardStore = create<KeyboardVisualState>()(
       });
     },
 
-    // ── pressKey ─────────────────────────────────────────────────────────────
     pressKey: (keyId, isCorrect) => {
       const now = performance.now();
       set((s) => {
@@ -341,7 +304,6 @@ export const useKeyboardStore = create<KeyboardVisualState>()(
       });
     },
 
-    // ── releaseKey ────────────────────────────────────────────────────────────
     releaseKey: (keyId) => {
       set((s) => {
         const isTarget   = s.targetKeyId === keyId;
@@ -361,7 +323,6 @@ export const useKeyboardStore = create<KeyboardVisualState>()(
       });
     },
 
-    // ── clearKeyError ────────────────────────────────────────────────────────
     clearKeyError: (keyId) => {
       set((s) => {
         const prev = s.keyStates[keyId];
@@ -375,7 +336,6 @@ export const useKeyboardStore = create<KeyboardVisualState>()(
       });
     },
 
-    // ── resetKeyStates ────────────────────────────────────────────────────────
     resetKeyStates: () => {
       const { layout } = get();
       if (!layout) return;
@@ -386,7 +346,6 @@ export const useKeyboardStore = create<KeyboardVisualState>()(
       set({ keyStates, targetKeyId: null });
     },
 
-    // ── setHeatmapData ────────────────────────────────────────────────────────
     setHeatmapData: (data) => {
       const { keyLookup } = get();
       if (!keyLookup) return;
@@ -409,7 +368,6 @@ export const useKeyboardStore = create<KeyboardVisualState>()(
       set({ heatmapData });
     },
 
-    // ── toggles / mode setters ────────────────────────────────────────────────
     toggleHeatmap:      () => set((s) => ({ heatmapEnabled:   !s.heatmapEnabled })),
     enableHeatmap:      (mode) => set({ heatmapEnabled: true,  heatmapMode: mode }),
     setHeatmapMode:     (mode) => set({ heatmapMode: mode }),
@@ -419,7 +377,6 @@ export const useKeyboardStore = create<KeyboardVisualState>()(
   })),
 );
 
-// ─── Fine-grained selectors (for minimal re-renders) ─────────────────────────
 
 /** Get a single key's visual state — stable reference if unchanged */
 export const selectKeyState = (keyId: string) =>

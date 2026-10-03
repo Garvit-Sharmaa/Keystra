@@ -10,14 +10,12 @@ import type { KeyDefinition } from '@keystra/shared';
 
 // No hardcoded finger dark tints anymore. The finger color will be indicated by the bottom bar.
 
-// ── Priority fill colours (live typing mode) ──────────────────────────────────
 const PRIORITY_FILL = {
   target:    'var(--violet-dim)', // Uses the theme's dim violet
   pressed:   'var(--violet)',     // Uses the theme's solid violet
   incorrect: 'var(--incorrect)',
 };
 
-// ── Color scale helpers ───────────────────────────────────────────────────────
 function getLuminance(r: number, g: number, b: number) {
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 }
@@ -103,7 +101,6 @@ export const Key = React.memo(function Key({ keyDef }: KeyProps) {
   const controls  = useAnimation();
   const prevPress = useRef<number | null>(null);
 
-  // ── Re-trigger animations on each new timestamp ───────────────────────────
   useEffect(() => {
     if (pressedAt === null || pressedAt === prevPress.current) return;
     prevPress.current = pressedAt;
@@ -122,7 +119,6 @@ export const Key = React.memo(function Key({ keyDef }: KeyProps) {
     }
   }, [pressedAt, priority, controls]);
 
-  // ── Breathing animation while targeted ───────────────────────────────────
   useEffect(() => {
     if (priority === 'target') {
       controls.start({
@@ -135,7 +131,6 @@ export const Key = React.memo(function Key({ keyDef }: KeyProps) {
     }
   }, [priority, controls]);
 
-  // ── Fill colour resolution ────────────────────────────────────────────────
   const kd = heatmapData[id];
 
   const dynamicFill: string | undefined = (() => {

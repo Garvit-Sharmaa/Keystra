@@ -1,11 +1,3 @@
-/**
- * migrate009.ts — Run only migration 009_chapter_progress.sql
- * Usage (from apps/api):
- *   npx dotenv-cli -e .env -- tsx src/scripts/migrate009.ts
- *
- * This script is idempotent: it uses IF NOT EXISTS so it is safe
- * to run multiple times against an existing database.
- */
 
 import { readFile } from 'fs/promises';
 import { join }     from 'path';

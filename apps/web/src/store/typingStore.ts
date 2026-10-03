@@ -1,18 +1,4 @@
 'use client';
-/**
- * typingStore — The most performance-critical store.
- *
- * ARCHITECTURE CONTRACT:
- *   • This store is NEVER called on individual keystrokes.
- *   • It is only updated on:
- *       1. Session init        (once)
- *       2. Status transitions  (idle → countdown → running → finished)
- *       3. Live stats tick     (every 500 ms via setInterval)
- *       4. Session completion  (once)
- *   • Per-keystroke mutations live in useTypingEngine's engineRef (plain object, zero overhead).
- *   • Components that display live WPM/accuracy use a Zustand selector slice so
- *     only those components re-render on the 500 ms tick — not the entire tree.
- */
 
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
@@ -24,7 +10,6 @@ import type {
 } from '@keystra/shared';
 import { TIME_MODE_OPTIONS, WORDS_MODE_OPTIONS } from '@keystra/shared';
 
-// ─── Default session config ───────────────────────────────────────────────────
 const DEFAULT_CONFIG: TypingSessionConfig = {
   mode: 'time',
   duration: 60,
@@ -32,25 +17,20 @@ const DEFAULT_CONFIG: TypingSessionConfig = {
   language: 'english',
 };
 
-// ─── State interface ──────────────────────────────────────────────────────────
 interface TypingState {
   // Immutable during an active session — set once at initSession
   config: TypingSessionConfig;
   /** Pre-computed word list for the session */
   words: string[];
 
-  // ── Lifecycle (infrequent transitions: idle→countdown→running→finished) ──
   status: SessionStatus;
   /** Countdown value: 3 → 2 → 1 (only relevant in 'countdown' status) */
   countdown: number;
 
-  // ── Final result (set once on completion) ────────────────────────────────
   results: TypingResults | null;
 
-  // ── Live metrics tick (updated every 500 ms, NOT on every keystroke) ─────
   liveStats: LiveTypingStats;
 
-  // ── Actions ───────────────────────────────────────────────────────────────
 
   /** Load a word list and configure the session. */
   initSession: (config: TypingSessionConfig, words: string[]) => void;
@@ -77,7 +57,6 @@ interface TypingState {
   setConfig: (patch: Partial<TypingSessionConfig>) => void;
 }
 
-// ─── Initial live stats ───────────────────────────────────────────────────────
 const INITIAL_LIVE_STATS: LiveTypingStats = {
   wpm: 0,
   rawWpm: 0,
@@ -86,7 +65,6 @@ const INITIAL_LIVE_STATS: LiveTypingStats = {
   wordProgress: 0,
 };
 
-// ─── Store ────────────────────────────────────────────────────────────────────
 export const useTypingStore = create<TypingState>()(
   subscribeWithSelector((set) => ({
     config:    DEFAULT_CONFIG,
@@ -146,7 +124,6 @@ export const useTypingStore = create<TypingState>()(
   })),
 );
 
-// ─── Derived selectors (prevents unnecessary re-renders) ─────────────────────
 export const selectConfig     = (s: TypingState) => s.config;
 export const selectWords      = (s: TypingState) => s.words;
 export const selectStatus     = (s: TypingState) => s.status;
@@ -156,5 +133,4 @@ export const selectLiveStats  = (s: TypingState) => s.liveStats;
 export const selectLiveWpm    = (s: TypingState) => s.liveStats.wpm;
 export const selectTimeLeft   = (s: TypingState) => s.liveStats.timeRemaining;
 
-// ─── Session mode helper constants (re-exported for UI dropdowns) ─────────────
 export { TIME_MODE_OPTIONS, WORDS_MODE_OPTIONS };

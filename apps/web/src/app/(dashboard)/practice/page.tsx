@@ -31,7 +31,6 @@ import { useUserStore, selectTokens }   from '@/store/userStore';
 import { useAnalyticsStore }            from '@/store/analyticsStore';
 import { useAcademyProgress }           from '@/hooks/useAcademyProgress';
 
-// ─── Drill word generation ────────────────────────────────────────────────────
 // We generate a focused drill by calling analyticsApi.weakKeys and then
 // building an ad-hoc lesson-style initSession that fills the word list with
 // words biased towards the weak key characters.
@@ -116,7 +115,6 @@ function buildDrillWords(
   return result.slice(0, count);
 }
 
-// ─── Forge-aware practice content ─────────────────────────────────────────────
 
 function PracticeContent() {
   const params   = useSearchParams();
@@ -127,12 +125,10 @@ function PracticeContent() {
   const status      = useTypingStore(selectStatus);
   const initSession = useTypingStore((s) => s.initSession);
 
-  // ── Academy chapter progress ──────────────────────────────────────────
   // Marks chapter complete when session finishes while /practice is mounted.
   // Must be called here (not in /learn) because /learn is unmounted during the session.
   useAcademyProgress();
 
-  // ── Today's Forge stats from analyticsStore (persists across navigation) ──────
   // Using the store means sessionCount/xpToday survive a visit to /academy and back.
   // addTodaySession auto-resets counts at midnight.
   const todaySessions    = useAnalyticsStore((s) => s.todaySessions);
@@ -151,7 +147,6 @@ function PracticeContent() {
     prevStatus.current = status;
   }, [status, addTodaySession]);
 
-  // ── Drill launcher ─────────────────────────────────────────────────────────
   const [isLaunching, setIsLaunching] = useState(false);
 
   const handleLaunchDrill = useCallback(async (
@@ -209,7 +204,6 @@ function PracticeContent() {
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 // useSearchParams() requires a Suspense boundary in Next.js App Router
 
 export default function PracticePage() {

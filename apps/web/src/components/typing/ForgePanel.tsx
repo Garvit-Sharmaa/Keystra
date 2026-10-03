@@ -1,20 +1,4 @@
 'use client';
-/**
- * ForgePanel.tsx — The Adaptive Forge Intelligence Panel
- *
- * A collapsible left-rail sidebar for /practice that surfaces:
- *   1. WeakKeyInsights  — Top-3 worst keys with error rate + latency badges
- *   2. DrillLauncher    — 3 one-click drill types targeting weak keys
- *   3. MiniHeatmap      — Compact live keyboard heatmap (accuracy dimension)
- *   4. SessionBadge     — Today's session count + XP earned live
- *
- * ARCHITECTURE:
- *   • Reads from useWeakKeyHeatmap (already wired to keyboardStore + analyticsApi)
- *   • Reads session count from typingStore (status transitions)
- *   • Drill launch calls lessonsApi-compatible initSession + router.push
- *   • Panel is fully collapsible — collapses to a 40px icon rail
- *   • Zero new API routes — all data from existing hooks
- */
 
 import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useRouter } from 'next/navigation';
@@ -30,7 +14,6 @@ import { useTypingStore, selectStatus } from '@/store/typingStore';
 import { useWeakKeyHeatmap } from '@/hooks/useWeakKeyHeatmap';
 import { analyticsApi } from '@/lib/api';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface WeakKey {
   keyChar:      string;
@@ -75,7 +58,6 @@ const DRILL_META: Record<DrillType, {
   },
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Map errorRate (0–1) to a traffic-light colour */
 function errorColor(rate: number): string {
@@ -98,7 +80,6 @@ function pct(v: number): string {
   return `${Math.round(v * 100)}%`;
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
 
 // Divider
 const Divider = () => (
@@ -112,7 +93,6 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   </p>
 );
 
-// ── Weak Key Row ──────────────────────────────────────────────────────────────
 const WeakKeyRow = memo(function WeakKeyRow({
   keyChar, errorRate, avgLatencyMs, rank,
 }: WeakKey & { rank: number }) {
@@ -166,7 +146,6 @@ const WeakKeyRow = memo(function WeakKeyRow({
   );
 });
 
-// ── Drill Button ──────────────────────────────────────────────────────────────
 const DrillButton = memo(function DrillButton({
   type, onClick, disabled,
 }: {
@@ -198,7 +177,6 @@ const DrillButton = memo(function DrillButton({
   );
 });
 
-// ── Mini heatmap legend ───────────────────────────────────────────────────────
 const HeatmapLegend = () => (
   <div className="flex items-center gap-1.5 mt-2">
     <span className="text-[9px] font-mono text-untyped">low</span>
@@ -209,7 +187,6 @@ const HeatmapLegend = () => (
   </div>
 );
 
-// ── Session badge (today's XP / session count) ────────────────────────────────
 const SessionBadge = memo(function SessionBadge({
   sessionCount, xpToday,
 }: { sessionCount: number; xpToday: number }) {
@@ -233,7 +210,6 @@ const SessionBadge = memo(function SessionBadge({
   );
 });
 
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 interface ForgePanelProps {
   /** Called when user launches a drill — parent must wire initSession + navigate */
@@ -252,7 +228,6 @@ export default function ForgePanel({
   const [isOpen,    setIsOpen]    = useState(true);
   const [activeDrill, setActiveDrill] = useState<DrillType | null>(null);
 
-  // ── Data sources ────────────────────────────────────────────────────────────
   const tokens      = useUserStore(selectTokens);
   const user        = useUserStore(selectUser);
   const heatmapData = useKeyboardStore(selectHeatmapData);
@@ -260,7 +235,6 @@ export default function ForgePanel({
 
   const { isLoading, error, hasData, refetch } = useWeakKeyHeatmap('accuracy');
 
-  // ── Derive top-3 weak keys from heatmap data ─────────────────────────────
   // Sort by a composite score: errorRate (primary) + normalized latency (secondary)
   const weakKeys: WeakKey[] = React.useMemo(() => {
     const entries = Object.entries(heatmapData);
@@ -284,7 +258,6 @@ export default function ForgePanel({
       .slice(0, 3);
   }, [heatmapData]);
 
-  // ── Refetch after session finishes ──────────────────────────────────────
   const prevStatus = useRef(status);
   useEffect(() => {
     if (prevStatus.current === 'running' && status === 'finished') {
@@ -293,7 +266,6 @@ export default function ForgePanel({
     prevStatus.current = status;
   }, [status, refetch]);
 
-  // ── Drill launcher ───────────────────────────────────────────────────────
   const handleDrill = useCallback(async (type: DrillType) => {
     if (!tokens?.accessToken || weakKeys.length === 0) return;
     setActiveDrill(type);
@@ -304,7 +276,6 @@ export default function ForgePanel({
   const isGuest = !user;
   const hasSufficientData = weakKeys.length >= 2;
 
-  // ── Panel width variants ─────────────────────────────────────────────────
   const panelVariants = {
     open:   { width: 288, opacity: 1 },
     closed: { width: 48,  opacity: 1 },

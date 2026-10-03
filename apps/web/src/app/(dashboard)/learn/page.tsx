@@ -1,21 +1,4 @@
 'use client';
-/**
- * LearnPage — The Academy: Chapter-based curriculum with strict linear gating.
- *
- * ARCHITECTURE:
- *   1. On mount: fetch server-persisted chapter progress from /api/lessons/progress
- *   2. Build curriculum via buildCurriculum(completedIds) — lock logic runs here
- *   3. Render LessonAccordion for each Lesson (accordion open = active lesson)
- *   4. On chapter click:
- *        - non-test: generate + initSession + navigate to /practice?lessonId=...
- *        - test:     open DifficultySelector modal first, then generate + navigate
- *   5. On return from TypingArena (status=finished):
- *        - evaluate results against difficulty-scaled thresholds
- *        - if pass: POST /api/lessons/progress, optimistically update local state
- *        - toast pass/fail feedback
- *
- * PRESERVATION: Zero modifications to TypingArena, ForgePanel, or any store/hook.
- */
 
 import React, { useCallback, useEffect, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams }    from 'next/navigation';
@@ -32,7 +15,6 @@ import type { Chapter, Lesson, Difficulty }        from '@keystra/shared';
 import LessonAccordion    from '@/components/academy/LessonAccordion';
 import DifficultySelector from '@/components/academy/DifficultySelector';
 
-// ─── Toast (inline, no external lib) ─────────────────────────────────────────
 
 interface ToastState {
   type:    'pass' | 'fail';
@@ -64,7 +46,6 @@ function Toast({ toast, onDismiss }: { toast: ToastState; onDismiss: () => void 
   );
 }
 
-// ─── Overall progress bar ─────────────────────────────────────────────────────
 
 function GlobalProgressBar({
   completed, total,
@@ -88,7 +69,6 @@ function GlobalProgressBar({
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 function LearnContent() {
   const router      = useRouter();
@@ -99,32 +79,25 @@ function LearnContent() {
   const isHydrated  = useUserStore((s) => s.isHydrated);
   const initSession = useTypingStore((s) => s.initSession);
 
-  // ── Server progress state ────────────────────────────────────────────────
   const [completedIds,  setCompletedIds]  = useState<Set<string>>(new Set());
   const [isLoading,     setIsLoading]     = useState(true);
   const [error,         setError]         = useState('');
 
-  // ── Chapter launch state ─────────────────────────────────────────────────
   const [startingId,    setStartingId]    = useState<string | null>(null);
   const [sessionError,  setSessionError]  = useState('');
 
-  // ── Difficulty modal state ───────────────────────────────────────────────
   const [pendingChapter, setPendingChapter] = useState<Chapter | null>(null);
   const [pendingLesson,  setPendingLesson]  = useState<Lesson  | null>(null);
   const [isLaunching,    setIsLaunching]    = useState(false);
 
-  // ── Toast state ──────────────────────────────────────────────────────────
   const [toast, setToast] = useState<ToastState | null>(null);
 
-  // ── Difficulty used in the last launched test (for pass/fail eval) ───────
   // NOTE: pendingChapterIdRef and pendingDifficultyRef were removed.
   // Chapter progress is now marked by useAcademyProgress() inside /practice,
   // which is the page actually mounted when the session finishes.
 
-  // ── Build curriculum from progress ──────────────────────────────────────
   const curriculum = buildCurriculum(completedIds);
 
-  // ── Fetch server progress ────────────────────────────────────────────────
   const fetchProgress = useCallback(async () => {
     if (!isHydrated) return;
     setIsLoading(true);
@@ -147,7 +120,6 @@ function LearnContent() {
 
   useEffect(() => { fetchProgress(); }, [fetchProgress]);
 
-  // ── Auto Launch (Next Chapter Flow) ──────────────────────────────────────
   useEffect(() => {
     if (autoLaunch && !isLoading && !isLaunching && !startingId && !pendingChapter) {
       const lesson = curriculum.find((l) => l.chapters.some((c) => c.id === autoLaunch));
@@ -161,7 +133,6 @@ function LearnContent() {
     }
   }, [autoLaunch, isLoading, isLaunching, startingId, pendingChapter, curriculum, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Clear progress when user changes (multi-account on same tab) ─────────
   const prevUserIdRef = useRef<string | null>(null);
   useEffect(() => {
     const currentId = user?.id ?? null;
@@ -172,7 +143,6 @@ function LearnContent() {
   }, [user?.id]);
 
 
-  // ── Chapter start handler ────────────────────────────────────────────────
   const handleChapterStart = useCallback((chapter: Chapter, lesson: Lesson) => {
     if (chapter.type === 'test') {
       // Open difficulty selector modal
@@ -251,7 +221,6 @@ function LearnContent() {
     }
   }
 
-  // ── Difficulty modal confirm ─────────────────────────────────────────────
   const handleDifficultyConfirm = useCallback(async (difficulty: Difficulty) => {
     if (!pendingChapter || !pendingLesson) return;
     const chapter = pendingChapter;
@@ -266,7 +235,6 @@ function LearnContent() {
     setPendingLesson(null);
   }, []);
 
-  // ── Derived stats ────────────────────────────────────────────────────────
   const allChapterCount   = curriculum.flatMap((l) => l.chapters).length;
   const completedChapterCount = completedIds.size;
 
@@ -275,7 +243,6 @@ function LearnContent() {
     (l) => !l.isLocked && !l.chapters.every((ch) => ch.isCompleted),
   );
 
-  // ── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-10 animate-fade-in">
 

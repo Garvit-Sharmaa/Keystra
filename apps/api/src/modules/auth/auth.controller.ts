@@ -4,7 +4,6 @@ import { registerUser, loginUser, refreshTokens } from './auth.service';
 import { verifyRefreshToken } from '../../utils/jwt';
 import { createError }        from '../../middleware/errorHandler';
 
-// ── Schemas ───────────────────────────────────────────────────────────────────
 const RegisterSchema = z.object({
   email:    z.string().email(),
   username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_-]+$/),
@@ -16,7 +15,6 @@ const LoginSchema = z.object({
   password: z.string().min(1),
 });
 
-// ── POST /api/auth/register ───────────────────────────────────────────────────
 export async function handleRegister(
   req: Request, res: Response, next: NextFunction,
 ): Promise<void> {
@@ -33,7 +31,6 @@ export async function handleRegister(
   } catch (err) { next(err); }
 }
 
-// ── POST /api/auth/login ──────────────────────────────────────────────────────
 export async function handleLogin(
   req: Request, res: Response, next: NextFunction,
 ): Promise<void> {
@@ -47,7 +44,6 @@ export async function handleLogin(
   } catch (err) { next(err); }
 }
 
-// ── POST /api/auth/refresh ────────────────────────────────────────────────────
 export async function handleRefresh(
   req: Request, res: Response, next: NextFunction,
 ): Promise<void> {
@@ -66,7 +62,6 @@ export async function handleRefresh(
   }
 }
 
-// ── GET /api/auth/me ──────────────────────────────────────────────────────────
 export async function handleMe(
   req: Request, res: Response,
 ): Promise<void> {

@@ -10,7 +10,6 @@ const config: Config = {
         sans:  ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
-        // ── Surface palette — wired to CSS variables in globals.css ──────────
         // Each token resolves to var(--surface-N), which switches value between
         // the :root (light) and html.dark blocks when next-themes toggles the class.
         surface: {

@@ -1,15 +1,4 @@
 'use client';
-/**
- * useWeakKeyHeatmap.ts
- *
- * Fetches per-key analytics from /api/analytics/weak-keys, normalises the
- * data, loads it into the keyboardStore, and auto-enables heatmap mode.
- *
- * ARCHITECTURE NOTE:
- *   This hook is the ONLY place that couples the analytics API with the
- *   keyboard visual store. Components that render the <Keyboard /> don't
- *   need to know anything about data fetching.
- */
 
 import { useEffect, useState, useCallback } from 'react';
 import { useKeyboardStore, selectHeatmapData } from '@/store/keyboardStore';
@@ -46,16 +35,13 @@ export function useWeakKeyHeatmap(
 
   const hasData = Object.keys(heatmapData).length > 0;
 
-  // ── Switch dimension without re-fetching ──────────────────────────────────
   const setDimension = useCallback((d: HeatmapDimension) => {
     setDimState(d);
     setHeatmapMode(d);
   }, [setHeatmapMode]);
 
-  // ── Force refetch ─────────────────────────────────────────────────────────
   const refetch = useCallback(() => setFetchKey((k) => k + 1), []);
 
-  // ── Fetch on mount / auth change / forced refetch ─────────────────────────
   useEffect(() => {
     if (!tokens?.accessToken) return;
 

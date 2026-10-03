@@ -1,7 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import { createError } from './errorHandler';
 
-// ── General API rate limiter ──────────────────────────────────────────────────
 export const apiRateLimiter = rateLimit({
   windowMs:         15 * 60 * 1000, // 15 minutes
   max:              200,
@@ -15,7 +14,6 @@ export const apiRateLimiter = rateLimit({
   },
 });
 
-// ── Auth rate limiter (stricter — prevents brute force) ───────────────────────
 export const authRateLimiter = rateLimit({
   windowMs:        15 * 60 * 1000,
   max:             20,
@@ -29,7 +27,6 @@ export const authRateLimiter = rateLimit({
   },
 });
 
-// ── Session submission limiter (one session per ~10 seconds minimum) ──────────
 export const sessionSubmitLimiter = rateLimit({
   windowMs:        10 * 1000, // 10 seconds
   max:             3,         // allow burst of 3 but not rapid-fire cheating

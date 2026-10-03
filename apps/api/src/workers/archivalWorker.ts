@@ -1,31 +1,8 @@
-/**
- * archivalWorker.ts — Nightly keystroke payload archival (data retention policy).
- *
- * ═══════════════════════════════════════════════════════════════
- *  MIGRATION STATUS: PHASE 5 — BullMQ Worker consumer disabled.
- *
- *  startArchivalWorker() is commented out. The processArchival()
- *  business logic is preserved verbatim in the BACKUP block below.
- *
- *  TODO: Re-implement the archival trigger using one of:
- *    A) QStash Scheduled Message:
- *         client.schedules.create({
- *           destination: `${PUBLIC_API_URL}/api/cron/archival`,
- *           cron: '0 2 * * *',
- *         })
- *    B) Vercel Cron (vercel.json "crons") calling a new
- *       /api/cron/archival Express route that runs processArchival()
- *
- *  The underlying SQL UPDATE logic (processArchival) is unchanged
- *  and ready to be called from whichever new trigger is chosen.
- * ═══════════════════════════════════════════════════════════════
- */
 
 import { pool }   from '../config/database';
 import { logger } from '../utils/logger';
 import type { ArchivalJobPayload } from '../config/bullmq';
 
-// ── processArchival — business logic (unchanged, ready for new trigger) ───────
 /**
  * Nulls out keystroke_payload on sessions older than `olderThanDays` days.
  * Data is already aggregated into weak_keys — the raw payload is no longer

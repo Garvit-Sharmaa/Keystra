@@ -1,20 +1,7 @@
-/**
- * analyticsWorker.ts — Per-key error aggregation + user statistics update.
- *
- * ═══════════════════════════════════════════════════════════════
- *  MIGRATION STATUS: PHASE 2 COMPLETE
- *
- *  The BullMQ Worker consumer is commented out below.
- *  processAnalytics() is now a plain exported async function.
- *  It is called by the QStash God Handler (Phase 3) via Promise.all.
- *  All PostgreSQL logic is unchanged — fully idempotent.
- * ═══════════════════════════════════════════════════════════════
- */
 
 import { pool }   from '../config/database';
 import { logger } from '../utils/logger';
 
-// ── Internal types (unchanged from original) ──────────────────────────────────
 interface CompactKeystroke {
   k: string; e: string; c: 0 | 1; l: number; p: number;
 }
@@ -25,7 +12,6 @@ interface KeyStat {
   totalLatencyMs: number;
 }
 
-// ── NEW: pure exported function — no BullMQ Job wrapper ──────────────────────
 /**
  * Aggregate per-key error stats for a completed session and update:
  *   1. weak_keys       (via upsert_weak_key SQL function)
@@ -37,7 +23,6 @@ export async function processAnalytics(
   sessionId: string,
   userId:    string,
 ): Promise<void> {
-  // ── Fetch session + keystroke payload ──────────────────────────────────────
   const { rows } = await pool.query(
     `SELECT wpm, raw_wpm, accuracy, consistency, duration_ms,
             keystroke_payload
@@ -54,7 +39,6 @@ export async function processAnalytics(
   const session = rows[0];
   const keystrokes: CompactKeystroke[] = session.keystroke_payload ?? [];
 
-  // ── Aggregate per-key stats ────────────────────────────────────────────────
   const keyStats = new Map<string, KeyStat>();
   for (const ks of keystrokes) {
     const key = ks.e; // always track expected key (what was SUPPOSED to be typed)
@@ -66,7 +50,6 @@ export async function processAnalytics(
     });
   }
 
-  // ── Upsert weak_keys + update user_statistics (single transaction) ─────────
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

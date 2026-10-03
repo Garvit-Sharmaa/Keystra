@@ -7,11 +7,9 @@ import { createError }            from '../../middleware/errorHandler';
 import { logger }                 from '../../utils/logger';
 import type { SubmitSessionPayload } from './sessions.validator';
 
-// ── Lesson completion thresholds ──────────────────────────────────────────────
 const LESSON_PASS_ACCURACY = 80;  // % — adjustable
 const LESSON_PASS_WPM      = 10;  // wpm — prevents trivially slow completions
 
-// ── Compact keystroke serialization ───────────────────────────────────────────
 interface CompactKeystroke {
   k: string; e: string; c: 0 | 1; l: number; p: number;
 }
@@ -23,7 +21,6 @@ function compactifyKeystrokes(events: SubmitSessionPayload['keystrokeEvents']): 
   }));
 }
 
-// ── Consistency score calculation ─────────────────────────────────────────────
 function calculateConsistency(events: SubmitSessionPayload['keystrokeEvents']): number {
   const latencies = events.map((e) => e.latencyMs).filter((l) => l > 0 && l < 2000);
   if (latencies.length < 5) return 0;
@@ -33,7 +30,6 @@ function calculateConsistency(events: SubmitSessionPayload['keystrokeEvents']): 
   return Math.round(Math.max(0, Math.min(100, (1 - cv) * 100)));
 }
 
-// ── Service result type ───────────────────────────────────────────────────────
 export interface SubmitSessionResult {
   sessionId:             string;
   xpGained:              number;
@@ -45,14 +41,12 @@ export interface SubmitSessionResult {
   isFlagged:             boolean;
 }
 
-// ── Service: submit session ───────────────────────────────────────────────────
 export async function submitSession(
   userId:  string,
   payload: SubmitSessionPayload,
 ): Promise<SubmitSessionResult> {
   const { results, config, keystrokeEvents } = payload;
 
-  // ── 1. Anti-cheat validation ──────────────────────────────────────────────
   const antiCheatResult = validateSession(payload);
   logger.info({
     userId,
@@ -74,7 +68,6 @@ export async function submitSession(
     );
   }
 
-  // ── 2. Compute derived metrics ────────────────────────────────────────────
   const consistency = calculateConsistency(keystrokeEvents);
   const xpGained    = isFlagged ? 0 : calculateSessionXp({
     wpm:        results.wpm,
@@ -85,7 +78,6 @@ export async function submitSession(
 
   const compactPayload = compactifyKeystrokes(keystrokeEvents);
 
-  // ── 3. Persist + gamification in one atomic transaction ─────────────────
   const { sessionId, newXp, newLevel, leveledUp, unlockedAchievements } =
     await withTransaction(async (client: PoolClient) => {
 
@@ -185,12 +177,10 @@ export async function submitSession(
       };
     });
 
-  // ── 4. Dispatch async jobs ────────────────────────────────────────────────
   if (!isFlagged || antiCheatResult.confidence > 0.5) {
     await dispatchSessionJobs(sessionId, userId, results.wpm, results.accuracy);
   }
 
-  // ── 5. Lesson progression ─────────────────────────────────────────────────
   // If this was a lesson session that meets the pass threshold, record it
   // in user_lesson_progress. The lessons API reads from this table to derive
   // each user's unlock state. Upsert is idempotent — replaying is safe.
@@ -246,7 +236,6 @@ export async function submitSession(
   };
 }
 
-// ── Service: get user sessions (paginated) ────────────────────────────────────
 export async function getUserSessions(
   userId: string,
   limit   = 20,

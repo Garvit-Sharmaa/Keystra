@@ -1,27 +1,12 @@
-/**
- * curriculum.ts — 10-step professional touch-typing curriculum.
- *
- * CUMULATIVE PROGRESSION RULE (invariant):
- *   lesson[n].allowedKeys = lesson[n-1].allowedKeys ∪ lesson[n].targetKeys
- *
- * This ensures the generation engine always has the full reachable character
- * set, while targetKeys contains ONLY the new keys for weighted sampling.
- *
- * FINGER ASSIGNMENT CONVENTION:
- *   targetFingers lists the fingers introduced/exercised by targetKeys.
- *   Used by the SVG keyboard to highlight focus fingers in the UI.
- */
 
 import type { LessonConfig } from '@keystra/shared';
 
-// ── Helper: build cumulative allowedKeys without mutation ─────────────────────
 function cumulative(...sets: string[][]): string[] {
   const seen = new Set<string>();
   for (const set of sets) for (const k of set) seen.add(k);
   return [...seen].sort();
 }
 
-// ── Stage key groups (single source of truth) ─────────────────────────────────
 const HOME_CORE    = ['a','s','d','f','j','k','l',';'];
 const HOME_REACHES = ['g','h'];
 const TOP_VOWELS   = ['e','i'];
@@ -37,7 +22,6 @@ const NUMBERS      = ['1','2','3','4','5','6','7','8','9','0'];
 const SHIFT_ALPHA  = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 const SYMBOLS      = ['!','@','#','$','%','^','&','*','(',')','_','+','{','}','|',':','"','<','>','?','~'];
 
-// ── Cumulative key sets per lesson ────────────────────────────────────────────
 const ALLOW_1  = cumulative(HOME_CORE);
 const ALLOW_2  = cumulative(ALLOW_1,  HOME_REACHES);
 const ALLOW_3  = cumulative(ALLOW_2,  TOP_VOWELS);
@@ -54,10 +38,8 @@ const ALLOW_13 = cumulative(ALLOW_12, SYMBOLS);
 // ALLOW_14 and 15 use ALLOW_13 (everything)
 const ALLOW_FULL = ALLOW_13;
 
-// ── Curriculum definition ─────────────────────────────────────────────────────
 export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
 
-  // ── Lesson 1: Home Row Core ──────────────────────────────────────────────────
   {
     id:                 'lesson-01-home-core',
     name:               'Lesson 1 — Home Row Core',
@@ -77,7 +59,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.9,   // almost every word must use a target key
   },
 
-  // ── Lesson 2: Home Row Index Reaches ─────────────────────────────────────────
   {
     id:                 'lesson-02-home-reaches',
     name:               'Lesson 2 — Home Row: G & H',
@@ -96,7 +77,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.6,
   },
 
-  // ── Lesson 3: Top Row Vowels ──────────────────────────────────────────────────
   {
     id:                 'lesson-03-top-vowels',
     name:               'Lesson 3 — Top Row: E & I',
@@ -115,7 +95,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.7,
   },
 
-  // ── Lesson 4: Top Row Index Reaches ──────────────────────────────────────────
   {
     id:                 'lesson-04-top-index',
     name:               'Lesson 4 — Top Row: R & U',
@@ -134,7 +113,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.6,
   },
 
-  // ── Lesson 5: Top Row Outer Keys ──────────────────────────────────────────────
   {
     id:                 'lesson-05-top-outer',
     name:               'Lesson 5 — Top Row: T, Y, W & O',
@@ -153,7 +131,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.55,
   },
 
-  // ── Lesson 6: Top Row Pinky Keys ──────────────────────────────────────────────
   {
     id:                 'lesson-06-top-pinky',
     name:               'Lesson 6 — Top Row: Q & P',
@@ -172,7 +149,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.45,
   },
 
-  // ── Lesson 7: Bottom Row Index Keys ──────────────────────────────────────────
   {
     id:                 'lesson-07-bottom-index',
     name:               'Lesson 7 — Bottom Row: V, B, N & M',
@@ -191,7 +167,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.55,
   },
 
-  // ── Lesson 8: Bottom Row Middle & Ring ────────────────────────────────────────
   {
     id:                 'lesson-08-bottom-mid-ring',
     name:               'Lesson 8 — Bottom Row: C, X, , & .',
@@ -210,7 +185,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.45,
   },
 
-  // ── Lesson 9: Bottom Row Pinky Keys ──────────────────────────────────────────
   {
     id:                 'lesson-09-bottom-pinky',
     name:               'Lesson 9 — Bottom Row: Z & /',
@@ -229,7 +203,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.35,
   },
 
-  // ── Lesson 10: Mastery ────────────────────────────────────────────────────────
   {
     id:                 'lesson-10-mastery',
     name:               'Lesson 10 — Full Keyboard Mastery',
@@ -250,7 +223,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.0,        // 100% adaptive (all slots go to weakKey pool)
   },
 
-  // ── Lesson 11: Numbers (Top Row) ───────────────────────────────────────────────
   {
     id:                 'lesson-11-numbers',
     name:               'Lesson 11 — Numbers',
@@ -268,7 +240,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.7, 
   },
 
-  // ── Lesson 12: Shift Mastery (Capitalization) ──────────────────────────────────
   {
     id:                 'lesson-12-shift',
     name:               'Lesson 12 — Shift Mastery',
@@ -286,7 +257,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.8,
   },
 
-  // ── Lesson 13: Advanced Symbols ───────────────────────────────────────────────
   {
     id:                 'lesson-13-symbols',
     name:               'Lesson 13 — Advanced Symbols',
@@ -304,7 +274,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.7,
   },
 
-  // ── Lesson 14: Speed Drills ───────────────────────────────────────────────────
   {
     id:                 'lesson-14-speed',
     name:               'Lesson 14 — Speed Drills',
@@ -322,7 +291,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
     targetKeyFrequency: 0.0,
   },
 
-  // ── Lesson 15: Grandmaster ────────────────────────────────────────────────────
   {
     id:                 'lesson-15-grandmaster',
     name:               'Lesson 15 — Grandmaster',
@@ -341,7 +309,6 @@ export const CURRICULUM: Readonly<LessonConfig[]> = Object.freeze([
   },
 ]) as unknown as LessonConfig[];
 
-// ── Lookup helpers ────────────────────────────────────────────────────────────
 
 /** O(1) lesson lookup by id */
 const CURRICULUM_MAP = new Map<string, LessonConfig>(

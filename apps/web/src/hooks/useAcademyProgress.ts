@@ -1,30 +1,4 @@
 'use client';
-/**
- * useAcademyProgress.ts
- *
- * Watches for session completion on the /practice page and, if the session
- * was launched from the Academy (isAcademy=1 in URL), immediately marks the
- * chapter as complete via POST /api/lessons/progress.
- *
- * WHY THIS HOOK EXISTS:
- *   The previous architecture tried to evaluate chapter completion on /learn
- *   using a Zustand subscription + local refs. This fails because:
- *     1. /learn is unmounted when the user navigates to /practice.
- *     2. The refs (pendingChapterId, pendingDifficulty) are destroyed.
- *     3. The running→finished transition fires on /practice, which /learn
- *        cannot observe since it's not mounted.
- *
- *   This hook runs inside /practice (which IS mounted during the session)
- *   and reads all required context directly from URL search params that
- *   launchChapter() injects when routing.
- *
- * URL params consumed:
- *   isAcademy   — must be '1'
- *   chapterId   — e.g. '1.1', '2.4'  (the chapter being practised)
- *   difficulty  — 'easy' | 'intermediate' | 'professional'
- *   reqWpm      — minimum WPM for test chapters (0 = no gate, always pass)
- *   reqAcc      — minimum accuracy for test chapters
- */
 
 import { useEffect, useRef } from 'react';
 import { useSearchParams }   from 'next/navigation';

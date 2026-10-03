@@ -1,18 +1,4 @@
 'use client';
-/**
- * ChapterRow.tsx — A single chapter line within a LessonAccordion.
- *
- * Visual states:
- *   completed  — green check, muted text, no CTA
- *   active     — bright text, "Start" button, pulsing left border on test type
- *   locked     — dim, no interaction (when entire lesson is locked)
- *
- * Type-specific appearance:
- *   tutorial  → BookOpen icon, slate accent
- *   drill     → Zap icon, violet accent
- *   game      → Gamepad2 icon, amber accent
- *   test      → Sword icon, rose/amber gradient border + "⚔ Boss" badge
- */
 
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
@@ -22,7 +8,6 @@ import {
 } from 'lucide-react';
 import type { Chapter, ChapterType } from '@keystra/shared';
 
-// ─── Chapter type meta ────────────────────────────────────────────────────────
 
 const TYPE_META: Record<ChapterType, {
   icon:        React.ReactNode;
@@ -56,7 +41,6 @@ const TYPE_META: Record<ChapterType, {
   },
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
 
 interface ChapterRowProps {
   chapter:     Chapter;

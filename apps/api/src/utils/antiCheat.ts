@@ -1,16 +1,7 @@
-/**
- * antiCheat.ts — Server-side session validation.
- *
- * Implements three independent checks, each producing a specific flag reason.
- * All checks are O(n) or O(1) — suitable for the hot path of session submission.
- *
- * Future: anomaly scores can be fed into an ML pipeline for soft flagging.
- */
 
 import { ANTI_CHEAT } from '@keystra/shared';
 import type { SessionSubmitPayload } from '@keystra/shared';
 
-// ── Result type ───────────────────────────────────────────────────────────────
 export interface AntiCheatResult {
   passed:      boolean;
   flagReason?: string;
@@ -18,7 +9,6 @@ export interface AntiCheatResult {
   confidence:  number;
 }
 
-// ── Statistical helpers ───────────────────────────────────────────────────────
 function mean(arr: number[]): number {
   return arr.reduce((a, b) => a + b, 0) / arr.length;
 }
@@ -28,7 +18,6 @@ function stdDev(arr: number[], avg: number): number {
   return Math.sqrt(variance);
 }
 
-// ── Check 1: Absolute WPM ceiling ────────────────────────────────────────────
 function checkWpmCeiling(wpm: number): AntiCheatResult | null {
   if (wpm > ANTI_CHEAT.MAX_BELIEVABLE_WPM) {
     return {
@@ -40,7 +29,6 @@ function checkWpmCeiling(wpm: number): AntiCheatResult | null {
   return null;
 }
 
-// ── Check 2: WPM ↔ chars/time mathematical alignment ─────────────────────────
 // A legitimate session must satisfy:
 //   correctChars ≈ wpm × 5 × (durationMs / 60_000)
 //
@@ -64,7 +52,6 @@ function checkWpmMathAlignment(payload: SessionSubmitPayload['results']): AntiCh
   return null;
 }
 
-// ── Check 3: Impossible keystroke speed ───────────────────────────────────────
 // Human reaction time minimum is ~20 ms. Any keystroke faster than this
 // (excluding the very first) indicates programmatic injection.
 // We allow up to 5% of keystrokes to be anomalous (measurement noise).
@@ -93,7 +80,6 @@ function checkImpossibleSpeed(
   return null;
 }
 
-// ── Check 4: Bot uniform rhythm detection ────────────────────────────────────
 // Humans have natural rhythm variance. A bot with `setInterval` typing
 // produces nearly uniform inter-key intervals.
 // Flag: std deviation < 5 ms when mean latency < 200 ms (fast, uniform bot).
@@ -122,7 +108,6 @@ function checkUniformRhythm(
   return null;
 }
 
-// ── Check 5: Session duration sanity ─────────────────────────────────────────
 function checkDurationSanity(
   durationMs: number,
   totalChars:  number,
@@ -146,7 +131,6 @@ function checkDurationSanity(
   return null;
 }
 
-// ── Public validator ──────────────────────────────────────────────────────────
 export function validateSession(payload: SessionSubmitPayload): AntiCheatResult {
   const { results, keystrokeEvents } = payload;
 

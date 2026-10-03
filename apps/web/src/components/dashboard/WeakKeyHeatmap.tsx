@@ -20,7 +20,6 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useTheme } from 'next-themes';
 
-// ── QWERTY layout definition ──────────────────────────────────────────────────
 const KEY_SIZE = 44;
 const KEY_GAP  = 5;
 const UNIT     = KEY_SIZE + KEY_GAP;
@@ -68,7 +67,6 @@ const KEY_RECTS = buildKeyRects();
 const CANVAS_W  = 14 * UNIT + 20;
 const CANVAS_H  = 5  * UNIT + 20;
 
-// ── Color interpolation ───────────────────────────────────────────────────────
 function lerpColor(a: [number,number,number], b: [number,number,number], t: number): string {
   const r = Math.round(a[0] + (b[0] - a[0]) * t);
   const g = Math.round(a[1] + (b[1] - a[1]) * t);
@@ -104,7 +102,6 @@ function errorRateToTextColor(rate: number): string {
   return '#6b7280';                   // muted
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
 interface WeakKeyData {
   keyChar:      string;
   errorRate:    number;
@@ -138,7 +135,6 @@ const WeakKeyHeatmap = React.memo(function WeakKeyHeatmap({ data }: WeakKeyHeatm
     return m;
   }, [data]);
 
-  // ── Canvas draw ─────────────────────────────────────────────────────────────
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -204,7 +200,6 @@ const WeakKeyHeatmap = React.memo(function WeakKeyHeatmap({ data }: WeakKeyHeatm
 
   useEffect(() => { draw(); }, [draw]);
 
-  // ── Mouse hit test ──────────────────────────────────────────────────────────
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;

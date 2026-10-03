@@ -16,7 +16,6 @@
 
 import React, { useState, useEffect } from 'react';
 
-// ── QWERTY layout matrix ──────────────────────────────────────────────────────
 // Each row is an array of { char, widthClass }.
 // `char` is the lowercase character used for hit-testing against activeKey/allowedKeys.
 // `display` is the label shown inside the key cap.
@@ -80,7 +79,6 @@ const ROW_4: KeyDef[] = [
 
 const ALL_ROWS: KeyDef[][] = [ROW_0, ROW_1, ROW_2, ROW_3, ROW_4];
 
-// ── Props ─────────────────────────────────────────────────────────────────────
 
 export interface LiveKeyboardProps {
   /** 'lesson' = show allowed-key highlights; 'practice' = no highlights */
@@ -89,7 +87,6 @@ export interface LiveKeyboardProps {
   allowedKeys: string[];
 }
 
-// ── Finger Mapping ────────────────────────────────────────────────────────────
 // Maps each key to the standard touch-typing finger color.
 const FINGER_MAP: Record<string, string> = {
   // Pinky (Rose)
@@ -110,7 +107,6 @@ const FINGER_MAP: Record<string, string> = {
   ' ': 'violet', 'alt': 'violet',
 };
 
-// ── Color Theme Classes ───────────────────────────────────────────────────────
 // Explicit Tailwind classes for each finger color to ensure they are not purged.
 const COLOR_CLASSES: Record<string, { bgAllowed: string, borderAllowed: string, textAllowed: string, bgPressed: string, borderPressed: string, shadowPressed: string, dot: string }> = {
   rose: {
@@ -135,7 +131,6 @@ const COLOR_CLASSES: Record<string, { bgAllowed: string, borderAllowed: string, 
   },
 };
 
-// ── Individual key cap ────────────────────────────────────────────────────────
 
 interface KeyCapProps {
   keyDef:      KeyDef;
@@ -144,7 +139,6 @@ interface KeyCapProps {
 }
 
 const KeyCap = React.memo(function KeyCap({ keyDef, isAllowed, isPressed }: KeyCapProps) {
-  // ── Visual state resolution (priority: pressed > allowed > default) ─────────
   const fingerColor = FINGER_MAP[keyDef.char] || 'violet';
   const colors = COLOR_CLASSES[fingerColor]!;
 
@@ -214,7 +208,6 @@ const KeyCap = React.memo(function KeyCap({ keyDef, isAllowed, isPressed }: KeyC
   );
 });
 
-// ── Main component ────────────────────────────────────────────────────────────
 
 const LiveKeyboard = React.memo(function LiveKeyboard({
   mode,

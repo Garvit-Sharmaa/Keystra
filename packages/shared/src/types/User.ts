@@ -1,6 +1,5 @@
 import type { Achievement } from './Achievement';
 
-// ─── User ─────────────────────────────────────────────────────────────────────
 export type OAuthProvider = 'google' | 'github' | 'local';
 export type UserRank = 'bronze' | 'silver' | 'gold' | 'diamond' | 'master' | 'legend';
 
@@ -35,7 +34,6 @@ export interface UserStatistics {
   streakDays: number;
 }
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;

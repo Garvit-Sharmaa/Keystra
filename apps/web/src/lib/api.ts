@@ -1,16 +1,7 @@
 'use client';
-/**
- * api.ts — Typed fetch wrapper for the TypingMaster API.
- *
- * Design decisions:
- * • Token passed explicitly (not read from store here — avoids circular deps)
- * • ApiError is a typed error class for consumer-level handling
- * • Automatic token-expiry retry is handled in useAuth via the refresh endpoint
- */
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
-// ── Typed API error ───────────────────────────────────────────────────────────
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -22,7 +13,6 @@ export class ApiError extends Error {
   }
 }
 
-// ── Core fetch wrapper ────────────────────────────────────────────────────────
 export async function apiFetch<T = unknown>(
   path: string,
   options: RequestInit & { token?: string } = {},
@@ -65,7 +55,6 @@ export async function apiFetch<T = unknown>(
   return body.data as T;
 }
 
-// ── Domain-specific API functions ─────────────────────────────────────────────
 
 /** Auth */
 export const authApi = {

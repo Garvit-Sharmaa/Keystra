@@ -91,7 +91,6 @@ function NavHeader() {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const isHydrated = useUserStore((s) => s.isHydrated);
 
-  // ── Pre-hydration gate ────────────────────────────────────────────────
   // Zustand reads localStorage asynchronously after the first render. Until
   // isHydrated flips to true (~10ms), the store has user=null and tokens=null.
   // Without this guard, any component that reads `isAuthenticated` will briefly

@@ -27,7 +27,6 @@ interface WpmChartProps {
   bestWpm: number;
 }
 
-// ── Custom Tooltip ────────────────────────────────────────────────────────────
 const CustomTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload as WpmDataPoint;
@@ -43,7 +42,6 @@ const CustomTooltip = ({ active, payload }: any) => {
   );
 };
 
-// ── Custom dot — highlights best WPM session ──────────────────────────────────
 const CustomDot = ({ cx, cy, payload, bestWpm }: any) => {
   if (payload.wpm !== bestWpm) return null;
   return (

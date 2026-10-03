@@ -14,7 +14,6 @@ interface AnalyticsState {
   isLoading:   boolean;
   lastFetched: number | null;
 
-  // ── Today's Forge stats (persist across page navigations, auto-reset at midnight) ───
   todayDate:    string;    // 'YYYY-MM-DD' — when this != todayStr() the counts reset
   todaySessions: number;
   todayXp:       number;

@@ -1,20 +1,4 @@
-/**
- * Keyboard.ts — Canonical type definitions for the Dynamic Keyboard
- * Visualization Engine (Phase 2).
- *
- * DESIGN PRINCIPLES:
- *   • Layout-independent: the entire keyboard topology is derived from
- *     a `KeyboardLayout` JSON document — no hardcoded rows or key counts.
- *   • SVG-native: all geometry is expressed in SVG user-units (x, y, width,
- *     height) within a known viewBox. No CSS pixel math.
- *   • Finger-aware: every key carries a `finger` assignment for color-coding
- *     and pedagogical hint rendering.
- *   • Bridge-ready: `KeyDefinition.code` matches `KeyboardEvent.code`
- *     (e.g. "KeyA", "Space", "Backspace") so the visual layer can be driven
- *     directly from the existing useTypingEngine keystroke events.
- */
 
-// ─── Primitive enumerations ───────────────────────────────────────────────────
 
 /**
  * The ten possible finger assignments.
@@ -55,7 +39,6 @@ export type KeyRowId =
  */
 export type LayoutVariant = 'ansi' | 'iso' | 'jis' | 'ortholinear' | 'split';
 
-// ─── KeyDefinition ────────────────────────────────────────────────────────────
 
 /**
  * The atomic unit of the keyboard layout schema.
@@ -107,7 +90,6 @@ export interface KeyDefinition {
   /** Logical row grouping — determines which <Row /> this <Key /> renders in */
   row: KeyRowId;
 
-  // ── SVG Geometry ────────────────────────────────────────────────────────────
 
   /** SVG x-coordinate of the key rect's top-left corner */
   x: number;
@@ -140,7 +122,6 @@ export interface KeyDefinition {
   isDeadKey?: boolean;
 }
 
-// ─── RowDefinition ────────────────────────────────────────────────────────────
 
 /**
  * Metadata for a logical row, used by the <Row /> component to group keys.
@@ -160,7 +141,6 @@ export interface RowDefinition {
   keyIds: string[];
 }
 
-// ─── KeyboardLayout ───────────────────────────────────────────────────────────
 
 /**
  * Top-level keyboard layout document.
@@ -196,7 +176,6 @@ export interface KeyboardLayout {
   /** Physical form-factor */
   variant: LayoutVariant;
 
-  // ── SVG Viewport ────────────────────────────────────────────────────────────
 
   /**
    * Width of the SVG viewBox.
@@ -207,7 +186,6 @@ export interface KeyboardLayout {
   /** Height of the SVG viewBox */
   viewBoxHeight: number;
 
-  // ── Key geometry defaults ───────────────────────────────────────────────────
   // These are applied as fallbacks when individual KeyDefinitions omit them.
 
   /** Default key width in SVG user-units */
@@ -222,7 +200,6 @@ export interface KeyboardLayout {
   /** Gap between adjacent keys in SVG user-units */
   keyGap: number;
 
-  // ── Content ─────────────────────────────────────────────────────────────────
 
   /** Ordered row metadata (top → bottom). Controls <Row /> render order. */
   rows: RowDefinition[];
@@ -235,7 +212,6 @@ export interface KeyboardLayout {
   keys: KeyDefinition[];
 }
 
-// ─── Utility helpers (pure, no runtime cost) ─────────────────────────────────
 
 /**
  * Build a O(1) lookup map from a KeyboardLayout.

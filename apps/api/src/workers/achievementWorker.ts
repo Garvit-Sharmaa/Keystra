@@ -1,20 +1,7 @@
-/**
- * achievementWorker.ts — Evaluate and unlock achievements after session completion.
- *
- * ═══════════════════════════════════════════════════════════════
- *  MIGRATION STATUS: PHASE 2 COMPLETE
- *
- *  The BullMQ Worker consumer is commented out below.
- *  processAchievements() is now a plain exported async function.
- *  It is called by the QStash God Handler (Phase 3) via Promise.all.
- *  All PostgreSQL logic is unchanged — fully idempotent.
- * ═══════════════════════════════════════════════════════════════
- */
 
 import { pool }   from '../config/database';
 import { logger } from '../utils/logger';
 
-// ── NEW: pure exported function — no BullMQ Job wrapper ──────────────────────
 /**
  * Evaluate achievement conditions against current user stats and unlock
  * any newly earned achievements.

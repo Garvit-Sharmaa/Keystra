@@ -1,24 +1,9 @@
-/**
- * dictionary.ts — Curated master word corpus for the lesson engine.
- *
- * Words are selected to provide good coverage across all 10 lesson stages:
- *   Lessons 1-2:  home-row words (a,s,d,f,g,h,j,k,l)
- *   Lessons 3-4:  + e, i, r, u
- *   Lessons 5-6:  + t, y, w, o, q, p
- *   Lessons 7-8:  + v, b, n, m, c, x, comma, period
- *   Lessons 9-10: + z, slash + full vocabulary
- *
- * The WordFilteringEngine selects the valid subset for each lesson config,
- * so this list can grow freely without changing lesson logic.
- */
 export const MASTER_DICTIONARY: readonly string[] = [
-  // ── Home-row stageable words (lessons 1-2: a s d f g h j k l) ──────────────
   'a','add','ads','all','ask','had','has','jag','sad','gal','gas','ash','lad',
   'lag','dash','fall','flag','glad','half','hall','hash','jade','jags','lass',
   'slab','slag','slad','fads','flask','flash','glass','slash','alga','calls',
   'falls','flags','halls','lads','salad','shall','djinn',
 
-  // ── + e, i (lesson 3) ───────────────────────────────────────────────────────
   'aide','aids','aisle','ale','alef','alike','dais','dale','dead','deal','deaf',
   'desk','dial','die','dies','dig','dike','dike','dill','ease','edge','eel',
   'egg','eggs','eight','else','idea','idle','feel','feed','file','fill','five',
@@ -28,7 +13,6 @@ export const MASTER_DICTIONARY: readonly string[] = [
   'held','idea','idle','shed','shelf','shielded','side','silk','sigh','sill',
   'skill','slide','slid','sign','signal','single','fake','fake','field','fills',
 
-  // ── + r, u (lesson 4) ───────────────────────────────────────────────────────
   'aid','air','are','aura','cure','dare','dear','duel','dug','dusk','duster',
   'ear','earl','earn','era','fare','fear','fir','fire','fired','flair','fluid',
   'four','fur','glad','grade','grail','grid','grill','grille','guide','guild',
@@ -39,7 +23,6 @@ export const MASTER_DICTIONARY: readonly string[] = [
   'slide','slur','sure','surge','use','used','user','vague','valid','valuer',
   'dear','disk','dark','druid','dusk','drug','duel','dude','ruse','sure',
 
-  // ── + t, y, w, o (lesson 5) ─────────────────────────────────────────────────
   'after','ago','also','auto','away','awe','awed','days','do','dog','door',
   'dot','down','draw','drew','droll','drow','dwelt','ego','eight','either',
   'enjoy','every','fall','follow','folk','food','fool','for','fore','forest',
@@ -58,7 +41,6 @@ export const MASTER_DICTIONARY: readonly string[] = [
   'where','which','why','wild','will','win','with','wood','word','wore',
   'work','world','worth','would','write','yard','year','yet','you','your',
 
-  // ── + q, p (lesson 6) ───────────────────────────────────────────────────────
   'apex','cope','cup','depth','drop','dip','drip','drop','epic','flap',
   'flip','flop','gap','gasp','grip','help','hope','hoop','hop','hyper',
   'kelp','keep','kept','lap','laps','limp','loop','map','maps','nap',
@@ -70,7 +52,6 @@ export const MASTER_DICTIONARY: readonly string[] = [
   'rasp','reap','rep','rope','rip','spa','soup','step','stop','swap',
   'tap','tape','tip','top','trap','trip','type','upon','warp','whip',
 
-  // ── + v, b, n, m (lesson 7) ─────────────────────────────────────────────────
   'and','any','arm','ban','bank','barn','beam','been','bell','belt',
   'bend','bind','bird','bit','blade','blame','bland','blank','bled',
   'blend','blink','blue','board','boat','body','bomb','bond','bone',
@@ -83,7 +64,6 @@ export const MASTER_DICTIONARY: readonly string[] = [
   'void','vow','make','man','mend','mine','mint','moan','mob','mode',
   'moon','more','most','move','mug','mix','mob','ban','blue','bind',
 
-  // ── + c, x, comma, period (lesson 8) ────────────────────────────────────────
   'ace','arc','buck','call','calm','can','cap','car','card','care',
   'cash','cast','catch','chain','check','choose','claim','clam','clan',
   'claw','click','climb','clip','close','clue','coat','cod','code',
@@ -97,7 +77,6 @@ export const MASTER_DICTIONARY: readonly string[] = [
   'stock','stuck','such','sync','tack','tack','thick','tick','track',
   'truck','wax','wick','mix','next','text','taxi','toxic','vex','wax',
 
-  // ── + z, slash (lesson 9) ────────────────────────────────────────────────────
   'azure','buzz','cozy','craze','daze','dazzle','dizzy','doze','drizzle',
   'fizz','frenzy','froze','fuzz','gaze','gauze','graze','grizzle',
   'haze','hazard','jazz','laze','lazy','maze','maize','nozzle','ooze',
@@ -105,7 +84,6 @@ export const MASTER_DICTIONARY: readonly string[] = [
   'sneeze','snooze','squeeze','topaz','zone','zero','zenith','zeal','zinc',
   'zip','zap','zen','zig','zag','zest','zoom','zoned',
 
-  // ── Mastery / high-frequency filler (lesson 10) ──────────────────────────────
   'ability','accept','achieve','across','action','active','actual','against',
   'ahead','already','although','amount','another','apply','approach','arrive',
   'assume','attack','attempt','attend','avoid','aware','basic','battle',

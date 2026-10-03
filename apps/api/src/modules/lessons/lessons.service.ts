@@ -13,7 +13,6 @@ import { generateSessionPayload } from '../../services/lesson/generationEngine';
 import { createError }           from '../../middleware/errorHandler';
 import type { LessonConfig }     from '@keystra/shared';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface LessonListItem {
   id:            string;
@@ -41,7 +40,6 @@ export interface GeneratedPayload {
   };
 }
 
-// ── Fetch user's weak key characters from the DB ──────────────────────────────
 async function getUserWeakKeyChars(userId: string): Promise<string[]> {
   try {
     const { rows } = await pool.query<{ key_char: string }>(
@@ -60,7 +58,6 @@ async function getUserWeakKeyChars(userId: string): Promise<string[]> {
   }
 }
 
-// ── Derive the user's max completed stage from lesson progress table ──────────
 // Reads from user_lesson_progress (migration 008) which stores TEXT slugs.
 // This avoids the broken UUID FK on typing_sessions.lesson_id.
 async function getUserMaxStage(userId: string): Promise<number> {
@@ -91,7 +88,6 @@ async function getUserMaxStage(userId: string): Promise<number> {
 }
 
 
-// ── Public service functions ──────────────────────────────────────────────────
 
 /** Return the full curriculum with per-user lock status. */
 export async function listLessons(userId?: string): Promise<LessonListItem[]> {
