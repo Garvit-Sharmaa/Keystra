@@ -1,49 +1,59 @@
 # ── Dependencies ──────────────────────────────────────────────────────────────
 node_modules/
+.pnp
+.pnp.js
 
 # ── Build outputs ─────────────────────────────────────────────────────────────
 dist/
 build/
 .next/
 out/
+.vercel/
 
 # ── Turborepo cache ───────────────────────────────────────────────────────────
 .turbo/
 
-# ── TypeScript ────────────────────────────────────────────────────────────────
+# ── TypeScript & Linting ──────────────────────────────────────────────────────
 *.tsbuildinfo
+.eslintcache
 
 # ── Environment files ─────────────────────────────────────────────────────────
-# Root
 .env
+.env*.local
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env.production
 .env.staging
 
-# Per-app (monorepo)
-apps/api/.env
-apps/api/.env.local
-apps/api/.env.production
-apps/web/.env
-apps/web/.env.local
-apps/web/.env.production
+# Per-app and nested workspaces
+**/.env
+**/.env.local
+**/.env*.local
+**/.env.production
+**/.env.staging
 
-# .env.example is intentionally committed — it's the onboarding template.
-# Do NOT add .env.example here.
+# Preserve onboarding templates
+!**/.env.example
+
+# ── Certificates & Keys ───────────────────────────────────────────────────────
+*.pem
+*.key
 
 # ── Logs ──────────────────────────────────────────────────────────────────────
 *.log
 npm-debug.log*
-pnpm-debug.log*
+yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # ── Test & coverage ───────────────────────────────────────────────────────────
 coverage/
 .nyc_output/
 
 # ── tsx runtime cache (Windows workaround) ────────────────────────────────────
-# Created by `npm run migrate` to work around the EPERM/short-path bug on
-# Windows machines with spaces in the username (e.g. "GARVIT BHARDWAJ").
 apps/api/tmp/
 
 # ── OS artifacts ──────────────────────────────────────────────────────────────
@@ -58,5 +68,6 @@ desktop.ini
 *.swp
 *.swo
 
-# ── Misc ──────────────────────────────────────────────────────────────────────
+# ── Temporary / scratch files ─────────────────────────────────────────────────
+test.txt
 implementation_plan.md

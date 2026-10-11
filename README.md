@@ -32,7 +32,13 @@ A live QWERTY keyboard renders in real-time as you type, with physics-accurate k
 Unstructured, full-dictionary typing tests in both **timed** (15s / 30s / 60s / 120s) and **word-count** (10 / 25 / 50 / 100) modes. The engine tracks WPM, raw WPM, accuracy, and consistency score using character-based WPM calculation (the same formula as Monkeytype/TypeRacer) — immune to backspace patterns that inflate or deflate word-count metrics.
 
 ### 🎓 Academy — Progressive Curriculum
-A structured 10-lesson curriculum with a server-enforced **Progression Gate**. Each lesson introduces a new key cluster. The backend validates session results against a minimum WPM and accuracy threshold before unlocking the next stage — preventing users from gaming progression with accidental completions.
+A structured 9-tier curriculum featuring **45 interactive chapters** with server-enforced **Boss Tests** and multi-level difficulty scaling (Easy, Intermediate, Professional). Each tier unlocks cumulatively — index fingers, vowels, pinky reaches, top/bottom rows, numbers, shift capitalization, code symbols, speed n-grams, and grandmaster texts. Server-side gates validate accuracy and WPM thresholds before unlocking the next tier.
+
+### 🔨 Adaptive Forge — Weak-Key Targeting Drills
+An intelligent drill synthesizer that inspects your historical keystroke error metrics and generates custom, focused drills in real-time:
+- **Precision Mode** (25 words) — strict focus on your top error-prone keys.
+- **Burst Mode** (40 words) — targets weak keys plus adjacent mechanical neighbors for muscle memory rhythm.
+- **Speed Mode** (60 words) — endurance runs with blended corpus targeting.
 
 ### 📊 Analytics & Weak-Key Heatmap
 An interactive SVG keyboard heatmap highlights your most error-prone keys based on aggregated session history. Every keystroke event is compacted and shipped to the backend, where the analytics pipeline aggregates per-key error rates and average latency into a persistent `weak_keys` table.
@@ -58,7 +64,7 @@ Flagged sessions are stored but excluded from stats and progression calculations
 Keystra is a **Turborepo monorepo** with two deployable apps and a shared types package.
 
 ```
-typeforge/
+Keystra/
 ├── apps/
 │   ├── web/          # Next.js 14 (App Router) — deployed to Vercel
 │   └── api/          # Node.js / Express   — deployed to Render
@@ -181,11 +187,23 @@ POSTGRES_USER=typingmaster
 POSTGRES_PASSWORD=your-db-password
 POSTGRES_DB=typingmaster
 
+# ── Frontend URL ─────────────────────────────────────────────
+FRONTEND_URL=http://localhost:3000
+
 # ── JWT ──────────────────────────────────────────────────────
 JWT_SECRET=your-32-char-minimum-jwt-secret-here
 JWT_EXPIRES_IN=15m
 JWT_REFRESH_SECRET=your-32-char-minimum-refresh-secret-here
 JWT_REFRESH_EXPIRES_IN=7d
+
+# ── OAuth (Optional) ─────────────────────────────────────────
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GOOGLE_CALLBACK_URL=http://localhost:4000/api/auth/google/callback
+
+GITHUB_CLIENT_ID=your_github_client_id_here
+GITHUB_CLIENT_SECRET=your_github_client_secret_here
+GITHUB_CALLBACK_URL=http://localhost:4000/api/auth/github/callback
 
 # ── QStash (get from console.upstash.com/qstash) ────────────
 QSTASH_TOKEN=qstash_token_xxxxxxxxxxxxxxxxxxxx
@@ -214,9 +232,11 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ### 3. Database Setup
 
 ```bash
-# Run migrations (creates all tables, functions, and seed data)
-cd apps/api
-npm run migrate
+# Run migrations from root (creates all tables, indexes, and seed data)
+npm run db:migrate
+
+# Or from apps/api:
+# cd apps/api && npm run migrate
 ```
 
 ### 4. Start ngrok (for QStash webhook testing)
@@ -239,8 +259,8 @@ ngrok http 4000
 npm run dev
 
 # Or start them individually:
-cd apps/api && npm run dev   # → http://localhost:4000
-cd apps/web && npm run dev   # → http://localhost:3000
+# npm run dev:api   # → http://localhost:4000
+# npm run dev:web   # → http://localhost:3000
 ```
 
 ---
@@ -254,10 +274,13 @@ cd apps/web && npm run dev   # → http://localhost:3000
 | `NODE_ENV` | ✅ | `development` \| `production` \| `test` |
 | `API_PORT` | ✅ | Port the Express server listens on (default: `4000`) |
 | `API_SECRET_KEY` | ✅ | Min 32 chars. Used for internal request signing |
+| `FRONTEND_URL` | ✅ | Frontend base URL for OAuth callbacks (default: `http://localhost:3000`) |
 | `DATABASE_URL` | ✅ | Full PostgreSQL connection string |
 | `POSTGRES_*` | ✅ | Individual PG connection fields (host, port, user, etc.) |
 | `JWT_SECRET` | ✅ | Min 32 chars. Signs access tokens (15min expiry) |
 | `JWT_REFRESH_SECRET` | ✅ | Min 32 chars. Signs refresh tokens (7 day expiry) |
+| `GOOGLE_*` | ❌ | Google OAuth credentials and callback URL |
+| `GITHUB_*` | ❌ | GitHub OAuth credentials and callback URL |
 | `QSTASH_TOKEN` | ⚠️ Prod | Authenticates outbound `publishJSON()` calls to Upstash |
 | `QSTASH_CURRENT_SIGNING_KEY` | ⚠️ Prod | Verifies inbound webhook HMAC signatures |
 | `QSTASH_NEXT_SIGNING_KEY` | ⚠️ Prod | Key-rotation support for zero-downtime signing key rollover |
