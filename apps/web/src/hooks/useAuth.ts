@@ -7,6 +7,16 @@ import { useAnalyticsStore } from '@/store/analyticsStore';
 import { authApi, ApiError } from '@/lib/api';
 import type { AuthTokens } from '@keystra/shared';
 
+function setAccessTokenCookie(token: string) {
+  const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
+}
+
+function clearAccessTokenCookie() {
+  const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${isSecure}`;
+}
+
 export function useAuth() {
   const router = useRouter();
   const {
@@ -22,7 +32,7 @@ export function useAuth() {
     isRefreshingRef.current = true;
     try {
       const newTokens = await authApi.refresh(refreshToken);
-      document.cookie = `accessToken=${newTokens.accessToken}; path=/; max-age=604800; SameSite=Lax; Secure`;
+      setAccessTokenCookie(newTokens.accessToken);
       const profile = await authApi.me(newTokens.accessToken);
       // Always get fresh user from store instead of closure
       const currentUser = useUserStore.getState().user;
@@ -36,7 +46,7 @@ export function useAuth() {
       scheduleRefresh(newTokens.expiresIn, newTokens.refreshToken);
     } catch {
       storeLogout();
-      document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; Secure';
+      clearAccessTokenCookie();
       router.push('/login');
     } finally {
       isRefreshingRef.current = false;
@@ -53,7 +63,7 @@ export function useAuth() {
     if (!isHydrated) return;
 
     if (!tokens?.refreshToken) {
-      document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; Secure';
+      clearAccessTokenCookie();
       return;
     }
 
@@ -65,7 +75,7 @@ export function useAuth() {
     setLoading(true);
     try {
       const result = await authApi.login({ email, password });
-      document.cookie = `accessToken=${result.accessToken}; path=/; max-age=604800; SameSite=Lax; Secure`;
+      setAccessTokenCookie(result.accessToken);
       const profile = await authApi.me(result.accessToken);
       setUser(
         {
@@ -88,7 +98,7 @@ export function useAuth() {
     try {
       const result = await authApi.register({ email, username, password });
 
-      document.cookie = `accessToken=${result.accessToken}; path=/; max-age=604800; SameSite=Lax; Secure`;
+      setAccessTokenCookie(result.accessToken);
       const profile = await authApi.me(result.accessToken);
       setUser(
         {
@@ -109,7 +119,7 @@ export function useAuth() {
     useAnalyticsStore.getState().invalidate();
     useAnalyticsStore.getState().setWeakKeys([]);
     storeLogout();
-    document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; Secure';
+    clearAccessTokenCookie();
     router.push('/login');
   }, [storeLogout, router]);
 

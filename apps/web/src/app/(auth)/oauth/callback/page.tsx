@@ -31,7 +31,8 @@ export default function OAuthCallbackPage() {
     hasProcessed.current = true;
     
     // Set the cookie for Next.js middleware (7 days to match refresh token)
-    document.cookie = `accessToken=${accessToken}; path=/; max-age=604800; SameSite=Lax; Secure`;
+    const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `accessToken=${accessToken}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
     
     // Fetch user profile
     authApi.me(accessToken).then((profile) => {

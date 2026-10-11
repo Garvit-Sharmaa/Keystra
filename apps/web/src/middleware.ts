@@ -8,11 +8,11 @@ import type { NextRequest } from 'next/server';
  * without importing a library). Real auth verification happens in each
  * server component / API route via requireAuth middleware.
  *
- * Protected routes: /dashboard, /practice, /profile, /achievements, /leaderboard
- * Public routes:    /, /login, /register
+ * Protected routes: /profile, /settings, /achievements, /leaderboard
+ * Public / Guest-enabled routes: /, /practice, /learn, /dashboard, /login, /register
  */
 
-const PROTECTED_PATHS = ['/dashboard', '/practice', '/profile', '/achievements', '/leaderboard'];
+const PROTECTED_PATHS = ['/profile', '/settings', '/achievements', '/leaderboard'];
 const AUTH_PATHS = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {
