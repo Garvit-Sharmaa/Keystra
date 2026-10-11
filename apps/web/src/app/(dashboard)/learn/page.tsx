@@ -256,7 +256,7 @@ function LearnContent() {
           </h1>
         </div>
         <p className="text-muted text-sm mt-1 font-mono">
-          {curriculum.length} lessons · {allChapterCount} chapters · complete each lesson's Boss Test to advance.
+          {curriculum.length} lessons · {allChapterCount} chapters · complete each lesson&apos;s Boss Test to advance.
         </p>
 
         {/* Global progress bar */}

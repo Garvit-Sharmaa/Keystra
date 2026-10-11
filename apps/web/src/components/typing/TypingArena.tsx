@@ -299,10 +299,7 @@ export default function TypingArena({ lessonId }: { lessonId?: string }) {
         disabled={status === 'finished'}
       />
 
-           Purely visual — observes hardware keystrokes via activeKey prop.
-           In lesson mode, illuminates allowed keys with a persistent tint.
-           Collapsed (opacity-0 + h-0) when session is finished to keep the
-           ResultsPanel clean. No prevent-default, no engine interaction. */}
+      {/* Visual Live Keyboard: illuminates allowed keys in lesson mode and observes active key presses */}
       <div
         className={`w-full transition-all duration-300 ${
           status === 'finished'

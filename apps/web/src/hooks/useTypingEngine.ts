@@ -524,7 +524,7 @@ export function useTypingEngine(): TypingEngineHandles {
       updateCaretPosition();
       setCaretTyping(true);
     },
-    [words, config.mode, setStatus, startIntervals,
+    [words, setStatus, startIntervals,
      updateCaretPosition, scrollToCurrentWord, setCaretTyping, finishSession],
   );
 

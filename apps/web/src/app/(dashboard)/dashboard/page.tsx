@@ -212,7 +212,7 @@ export default function DashboardPage() {
                         bg-purple-50 border border-purple-100
                         dark:bg-purple-900/10 dark:border-purple-500/20">
           <p className="text-sm text-purple-700 dark:text-purple-300 font-mono">
-            ⚡ You're in guest mode. Sign in to sync stats and earn XP.
+            ⚡ You&apos;re in guest mode. Sign in to sync stats and earn XP.
           </p>
           <Link href="/login"
             className="text-purple-600 dark:text-purple-400 text-sm font-mono font-semibold

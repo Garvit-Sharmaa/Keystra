@@ -3,11 +3,11 @@
  * PracticePage — The Adaptive Forge + Typing Arena
  *
  * Layout:
- *   ┌──────────────┬────────────────────────────────────────────┐
- *   │  ForgePanel  │           TypingArena                      │
- *   │  (288px)     │        (flex-1, centered)                  │
- *   │  collapsible │                                            │
- *   └──────────────┴────────────────────────────────────────────┘
+ *   
+ *    ForgePanel           TypingArena                      
+ *    (288px)          (flex-1, centered)                  
+ *     collapsible                                           
+ *   
  *
  * Drill launch flow:
  *   1. User clicks a drill button in ForgePanel
@@ -23,13 +23,13 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { motion }                      from 'framer-motion';
-import TypingArena                     from '@/components/typing/TypingArena';
-import ForgePanel                      from '@/components/typing/ForgePanel';
+import { motion } from 'framer-motion';
+import TypingArena from '@/components/typing/TypingArena';
+import ForgePanel from '@/components/typing/ForgePanel';
 import { useTypingStore, selectStatus } from '@/store/typingStore';
-import { useUserStore, selectTokens }   from '@/store/userStore';
-import { useAnalyticsStore }            from '@/store/analyticsStore';
-import { useAcademyProgress }           from '@/hooks/useAcademyProgress';
+import { useUserStore, selectTokens } from '@/store/userStore';
+import { useAnalyticsStore } from '@/store/analyticsStore';
+import { useAcademyProgress } from '@/hooks/useAcademyProgress';
 
 // We generate a focused drill by calling analyticsApi.weakKeys and then
 // building an ad-hoc lesson-style initSession that fills the word list with
@@ -39,30 +39,30 @@ import { useAcademyProgress }           from '@/hooks/useAcademyProgress';
 
 /** A compact, common English word list biased toward single-char repetition */
 const COMMON_WORDS = [
-  'the','and','for','are','but','not','you','all','can','had',
-  'her','was','one','our','out','day','get','has','him','his',
-  'how','man','new','now','old','see','two','way','who','boy',
-  'did','its','let','put','say','she','too','use','dad','far',
-  'few','got','let','may','off','ran','red','run','sat','set',
-  'six','ten','try','yes','yet','ago','air','art','big','bit',
-  'box','bus','car','cat','cup','cut','dog','dry','due','ear',
-  'eat','egg','end','eye','fat','fly','fun','gas','gun','gut',
-  'hat','hit','hot','hug','ice','key','kid','law','lay','leg',
-  'lid','lip','log','lot','low','mix','mud','net','nod','nor',
-  'oak','odd','oil','own','pan','pay','per','pet','pie','pit',
-  'pop','pot','raw','ray','rib','rid','rip','rod','rot','row',
-  'rub','rug','sad','sap','saw','sea','sew','shy','sip','sit',
-  'sky','sly','sob','son','sow','spa','spy','sum','sun','tab',
-  'tan','tap','tar','tax','tea','tie','tip','toe','top','toy',
-  'tug','tun','tux','van','vat','via','vow','wax','web','wed',
-  'wet','win','wit','woe','won','woo','wow','yam','yap','yaw',
+  'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had',
+  'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his',
+  'how', 'man', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy',
+  'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use', 'dad', 'far',
+  'few', 'got', 'let', 'may', 'off', 'ran', 'red', 'run', 'sat', 'set',
+  'six', 'ten', 'try', 'yes', 'yet', 'ago', 'air', 'art', 'big', 'bit',
+  'box', 'bus', 'car', 'cat', 'cup', 'cut', 'dog', 'dry', 'due', 'ear',
+  'eat', 'egg', 'end', 'eye', 'fat', 'fly', 'fun', 'gas', 'gun', 'gut',
+  'hat', 'hit', 'hot', 'hug', 'ice', 'key', 'kid', 'law', 'lay', 'leg',
+  'lid', 'lip', 'log', 'lot', 'low', 'mix', 'mud', 'net', 'nod', 'nor',
+  'oak', 'odd', 'oil', 'own', 'pan', 'pay', 'per', 'pet', 'pie', 'pit',
+  'pop', 'pot', 'raw', 'ray', 'rib', 'rid', 'rip', 'rod', 'rot', 'row',
+  'rub', 'rug', 'sad', 'sap', 'saw', 'sea', 'sew', 'shy', 'sip', 'sit',
+  'sky', 'sly', 'sob', 'son', 'sow', 'spa', 'spy', 'sum', 'sun', 'tab',
+  'tan', 'tap', 'tar', 'tax', 'tea', 'tie', 'tip', 'toe', 'top', 'toy',
+  'tug', 'tun', 'tux', 'van', 'vat', 'via', 'vow', 'wax', 'web', 'wed',
+  'wet', 'win', 'wit', 'woe', 'won', 'woo', 'wow', 'yam', 'yap', 'yaw',
 ];
 
 /** Drill-type → word count */
 const DRILL_WORD_COUNT: Record<string, number> = {
   precision: 25,
-  burst:     40,
-  speed:     60,
+  burst: 40,
+  speed: 60,
 };
 
 /**
@@ -71,20 +71,20 @@ const DRILL_WORD_COUNT: Record<string, number> = {
  * adjacent QWERTY keys for burst/speed), then pad with any remaining words.
  */
 function buildDrillWords(
-  weakKeys:  string[],
+  weakKeys: string[],
   drillType: string,
-  count:     number,
+  count: number,
 ): string[] {
   const targetSet = new Set(weakKeys.map((k) => k.toLowerCase()));
 
   // For burst/speed drills, include common adjacent keys
   if (drillType !== 'precision') {
     const adjacent: Record<string, string[]> = {
-      a: ['s','q','z'], s: ['a','d','w','x'], d: ['s','f','e','c'],
-      f: ['d','g','r','v'], g: ['f','h','t','b'], h: ['g','j','y','n'],
-      j: ['h','k','u','m'], k: ['j','l','i'], l: ['k',';','o'],
-      e: ['w','r','d'], r: ['e','t','f'], t: ['r','y','g'], y: ['t','u','h'],
-      u: ['y','i','j'], i: ['u','o','k'], o: ['i','p','l'],
+      a: ['s', 'q', 'z'], s: ['a', 'd', 'w', 'x'], d: ['s', 'f', 'e', 'c'],
+      f: ['d', 'g', 'r', 'v'], g: ['f', 'h', 't', 'b'], h: ['g', 'j', 'y', 'n'],
+      j: ['h', 'k', 'u', 'm'], k: ['j', 'l', 'i'], l: ['k', ';', 'o'],
+      e: ['w', 'r', 'd'], r: ['e', 't', 'f'], t: ['r', 'y', 'g'], y: ['t', 'u', 'h'],
+      u: ['y', 'i', 'j'], i: ['u', 'o', 'k'], o: ['i', 'p', 'l'],
     };
     for (const k of [...weakKeys]) {
       adjacent[k]?.forEach((adj) => targetSet.add(adj));
@@ -99,8 +99,8 @@ function buildDrillWords(
   });
 
   // Primary: high-overlap words; Secondary: any remaining words
-  const primary   = scored.filter((w) => w.score >= 0.5).map((w) => w.word);
-  const secondary = scored.filter((w) => w.score  < 0.5).map((w) => w.word);
+  const primary = scored.filter((w) => w.score >= 0.5).map((w) => w.word);
+  const secondary = scored.filter((w) => w.score < 0.5).map((w) => w.word);
 
   const pool = [...primary, ...secondary];
 
@@ -117,12 +117,12 @@ function buildDrillWords(
 
 
 function PracticeContent() {
-  const params   = useSearchParams();
-  const router   = useRouter();
+  const params = useSearchParams();
+  const router = useRouter();
   const lessonId = params.get('lessonId') ?? undefined;
 
-  const tokens      = useUserStore(selectTokens);
-  const status      = useTypingStore(selectStatus);
+  const tokens = useUserStore(selectTokens);
+  const status = useTypingStore(selectStatus);
   const initSession = useTypingStore((s) => s.initSession);
 
   // Marks chapter complete when session finishes while /practice is mounted.
@@ -131,9 +131,9 @@ function PracticeContent() {
 
   // Using the store means sessionCount/xpToday survive a visit to /academy and back.
   // addTodaySession auto-resets counts at midnight.
-  const todaySessions    = useAnalyticsStore((s) => s.todaySessions);
-  const todayXp          = useAnalyticsStore((s) => s.todayXp);
-  const addTodaySession  = useAnalyticsStore((s) => s.addTodaySession);
+  const todaySessions = useAnalyticsStore((s) => s.todaySessions);
+  const todayXp = useAnalyticsStore((s) => s.todayXp);
+  const addTodaySession = useAnalyticsStore((s) => s.addTodaySession);
 
   const prevStatus = useRef(status);
   useEffect(() => {
@@ -150,7 +150,7 @@ function PracticeContent() {
   const [isLaunching, setIsLaunching] = useState(false);
 
   const handleLaunchDrill = useCallback(async (
-    weakKeys:  string[],
+    weakKeys: string[],
     drillType: string,
   ) => {
     setIsLaunching(true);
@@ -164,11 +164,11 @@ function PracticeContent() {
 
       initSession(
         {
-          mode:        'words',
-          duration:    0,
-          wordCount:   words.length,
-          language:    'english',
-          lessonId:    forgeId,
+          mode: 'words',
+          duration: 0,
+          wordCount: words.length,
+          language: 'english',
+          lessonId: forgeId,
           allowedKeys: weakKeys, // LiveKeyboard will highlight these
         },
         words,
